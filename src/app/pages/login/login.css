@@ -1,40 +1,32 @@
-.login-container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-m);
-  padding: 64px;
-  border-radius: var(--gap-p);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
-.formulario{
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-p);
+.login-container{ display: flex; flex-direction: column; align-items: center; gap: var(--gap-m); padding: 64px; border-radius: var(--gap-p); box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); }
+.formulario{ display: flex; flex-direction: column; gap: var(--gap-p); }
+
+.campo{ display: flex; flex-direction: column; gap: var(--gap-m); }
+.campo input{ border: none; height: 32px; border-radius: var(--gap-p); color: var(--brand-color); box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1); }
+
+.botoes-container{ display: flex; gap: var(--gap-p); justify-content: center; }
+.botoes-container button{ border: none; border-radius: var(--gap-p); height: 32px; color: var(--brand-color); background-color: var(--bg-brand); }
+
+.popup-mensagem { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; color: white; font-weight: bold; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); z-index: 1000; animation: slideDown 0.3s ease-out forwards; }
+
+.popup-erro { background-color: #d9534f; }
+
+.popup-sucesso { background-color: #5cb85c; }
+
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 20px; opacity: 1; }
 }
 
-.campo{
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-m);
-}
-.campo input{
-  border: none;
-  height: 32px;
-  border-radius: var(--gap-p);
-  color: var(--brand-color);
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
-}
-
-.botoes-container{
-  display: flex;
-  gap: var(--gap-p);
-  justify-content: center;
-}
-.botoes-container button{
-  border: none;
-  border-radius: var(--gap-p);
-  height: 32px;
-  color: var(--brand-color);
-  background-color: var(--bg-brand);
+@media (max-width: 600px) {
+  .login-container {
+    padding: 32px;
+    width: 90%;
+    box-sizing: border-box;
+  }
+  
+  .formulario {
+    width: 100%;
+  }
 }

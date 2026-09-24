@@ -1,23 +1,31 @@
 <div class="login-container">
+  
+  <div *ngIf="mensagemErro" class="popup-mensagem popup-erro">
+    {{ mensagemErro }}
+  </div>
+
   <h2>Acesse sua Conta</h2>
 
-  <form class="formulario">
+  <form class="formulario" (ngSubmit)="entrar()">
 
     <div class="campo">
       <label for="email">E-mail</label>
-      <input type="email" id="email" placeholder="Digite seu e-mail" required>
+      <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="Digite seu e-mail" required>
     </div>
 
     <div class="campo">
       <label for="senha">Senha</label>
-      <input type="password" id="senha" placeholder="Digite sua senha" required>
+      <input type="password" id="senha" name="senha" [(ngModel)]="senha" placeholder="Digite sua senha" required>
     </div>
 
     <div class="botoes-container">
 
-      <button type="submit" class="btn-entrar">Entrar</button>
+      <button type="submit" class="btn-entrar" [disabled]="carregando">
+        <span *ngIf="carregando">Entrando...</span>
+        <span *ngIf="!carregando">Entrar</span>
+      </button>
 
-      <button type="button" class="btn-cadastro">Cadastro</button>
+      <button type="button" class="btn-cadastro" (click)="cadastrar()">Cadastro</button>
     </div>
 
   </form>

@@ -1,1 +1,209 @@
-<p>lista works!</p>
+<div class="lista-container">
+  <div class="controls-section">
+    <div style="display: flex; gap: 16px; align-items: center; width: 100%; justify-content: space-between;">
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <div class="categoria-pill">Tarefas</div>
+        <ng-container *ngIf="filtroCategoria !== '_NOVA_'">
+          <select class="form-control" [(ngModel)]="filtroCategoria" (change)="onFiltroCategoriaChange()" style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; min-width: 150px; cursor: pointer;">
+            <option value="">Todas as Categorias</option>
+            <option *ngFor="let c of categorias" [value]="c.NOME || c.nome">{{ c.NOME || c.nome }}</option>
+            <option value="_NOVA_">+ Adicionar Nova...</option>
+          </select>
+        </ng-container>
+        
+        <div *ngIf="filtroCategoria === '_NOVA_'" style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" [(ngModel)]="novaCategoriaNome" class="form-control" placeholder="Nova categoria..." style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; width: 150px;" (keyup.enter)="salvarNovaCategoria()" autofocus>
+          <button class="btn-save" (click)="salvarNovaCategoria()" style="padding: 6px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+            <lucide-icon [img]="Save" class="icon" style="width: 14px; height: 14px; color: white;"></lucide-icon> Salvar
+          </button>
+          <button class="icon-btn" (click)="cancelarNovaCategoria()" style="padding: 6px;">
+            <lucide-icon [img]="X" class="icon" style="width: 16px; height: 16px; color: #ef4444;"></lucide-icon>
+          </button>
+        </div>
+      </div>
+      <div style="position: relative;">
+        <button class="btn-save" style="display: flex; align-items: center; gap: 8px;" (click)="mostrarModal = !mostrarModal" [disabled]="carregando">
+          <lucide-icon [img]="Plus" class="icon-plus" color="white"></lucide-icon> Nova Tarefa
+        </button>
+
+        <div class="inline-add-dropdown" *ngIf="mostrarModal" style="right: 0; left: auto; top: 120%;">
+          <input type="text" 
+                 [(ngModel)]="novaTarefa.nomeAtividade" 
+                 placeholder="Digite a tarefa..." 
+                 class="form-control inline-input"
+                 (keyup.enter)="salvarTarefa()"
+                 autofocus>
+          <button class="icon-btn btn-send" (click)="salvarTarefa()" [disabled]="carregando">
+            <lucide-icon [img]="Check"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <div class="tarefas-grid" [ngStyle]="{'grid-template-columns': getGridColumns()}">
+      <!-- Headers -->
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('CONCLUIDA')">
+          <lucide-icon [img]="CheckSquare" class="icon"></lucide-icon>
+          <span class="header-text">Status</span>
+          <span *ngIf="colunaOrdenacao === 'CONCLUIDA'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('CATEGORIA')">
+          <lucide-icon [img]="ListIcon" class="icon"></lucide-icon>
+          <span class="header-text">Categoria</span>
+          <span *ngIf="colunaOrdenacao === 'CATEGORIA'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('ATIVIDADE')">
+          <lucide-icon [img]="Pencil" class="icon"></lucide-icon>
+          <span class="header-text">Tarefa</span>
+          <span *ngIf="colunaOrdenacao === 'ATIVIDADE'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('DATA_COMECO')">
+          <lucide-icon [img]="Clock" class="icon"></lucide-icon>
+          <span class="header-text">Data Inicial</span>
+          <span *ngIf="colunaOrdenacao === 'DATA_COMECO'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('DATA_FIM')">
+          <lucide-icon [img]="Clock" class="icon"></lucide-icon>
+          <span class="header-text">Data Final</span>
+          <span *ngIf="colunaOrdenacao === 'DATA_FIM'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <div class="col-header">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('STATUS')">
+          <lucide-icon [img]="ShieldAlert" class="icon"></lucide-icon>
+          <span class="header-text">Status (Cat.)</span>
+          <span *ngIf="colunaOrdenacao === 'STATUS'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+      <!-- Critérios Headers -->
+      <div class="col-header" *ngFor="let crit of criteriosAtivos" style="position: relative;">
+        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar(crit.nome)">
+          <span class="header-text">{{ crit.nome }}</span>
+          <span *ngIf="colunaOrdenacao === crit.nome">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
+      </div>
+
+      <div class="col-header no-border" style="justify-content: center; align-items: center;">
+        <button class="add-button" (click)="abrirModalCriterio()" [disabled]="carregando">
+          Adicionar <lucide-icon [img]="Plus" class="icon-plus"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Iteration over Tarefas -->
+      <ng-container *ngFor="let t of tarefasFiltradas">
+        <div class="col-cell checkbox-cell">
+          <button class="concluir-btn" 
+                  [class.concluido]="t.CONCLUIDA" 
+                  [disabled]="t._loading"
+                  (click)="concluirTarefa(t)">
+            <lucide-icon *ngIf="t.CONCLUIDA" [img]="Check" class="icon-check"></lucide-icon>
+          </button>
+        </div>
+        <div class="col-cell text-cell" style="padding: 4px;">
+          <select [(ngModel)]="t.CATEGORIA" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500; appearance: auto; cursor: pointer;">
+            <option value="">Selecione...</option>
+            <option *ngFor="let c of categorias" [value]="c.NOME || c.nome">{{ c.NOME || c.nome }}</option>
+          </select>
+        </div>
+        <div class="col-cell text-cell" style="padding: 4px;">
+          <input type="text" [(ngModel)]="t.ATIVIDADE" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500;">
+        </div>
+        <div class="col-cell text-cell" style="padding: 4px;">
+          <input type="date" [(ngModel)]="t.DATA_COMECO" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-family: inherit;">
+        </div>
+        <div class="col-cell text-cell" style="padding: 4px;">
+          <input type="date" [(ngModel)]="t.DATA_FIM" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-family: inherit;">
+        </div>
+        <div class="col-cell text-cell" style="padding: 4px;">
+          <select [(ngModel)]="t.STATUS" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500; appearance: auto; cursor: pointer;">
+            <option value="">Selecione...</option>
+            <option *ngFor="let s of statusList" [value]="s.NOME || s.nome">{{ s.NOME || s.nome }}</option>
+          </select>
+        </div>
+
+        <!-- Critérios Columns -->
+        <div class="col-cell text-cell" style="padding: 4px;" *ngFor="let crit of criteriosAtivos">
+          <select [(ngModel)]="t[crit.nome]" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; cursor: pointer;">
+            <option value="">-</option>
+            <option *ngFor="let p of crit.pesos" [value]="p.aval || p.peso">{{ p.aval || p.peso }}</option>
+          </select>
+        </div>
+        <div class="col-cell no-border action-cell" style="gap: 8px;">
+          <!-- View Mode -->
+          <ng-container *ngIf="!t._isEditing">
+            <button class="icon-btn" (click)="editarTarefa(t)" [disabled]="t._loading" title="Editar">
+              <lucide-icon [img]="Pencil" class="icon" style="color: #64748b; width: 18px; height: 18px;"></lucide-icon>
+            </button>
+            <button class="icon-btn delete-btn" (click)="deletarTarefa(t)" [disabled]="t._loading" title="Excluir">
+              <lucide-icon [img]="Trash2" class="icon" style="width: 18px; height: 18px;"></lucide-icon>
+            </button>
+          </ng-container>
+          <!-- Edit Mode -->
+          <ng-container *ngIf="t._isEditing">
+            <button class="icon-btn" (click)="salvarEdicao(t)" [disabled]="t._loading" title="Salvar">
+              <lucide-icon [img]="Save" class="icon" style="color: #10b981; width: 18px; height: 18px;"></lucide-icon>
+            </button>
+            <button class="icon-btn" (click)="cancelarEdicao(t)" [disabled]="t._loading" title="Descartar">
+              <lucide-icon [img]="X" class="icon" style="color: #ef4444; width: 18px; height: 18px;"></lucide-icon>
+            </button>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <div *ngIf="tarefasFiltradas.length === 0" class="empty-state">
+        <span *ngIf="carregando">Carregando tarefas...</span>
+        <span *ngIf="!carregando">Nenhuma tarefa encontrada.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="categorias-list">
+  <option *ngFor="let c of categorias" [value]="c.NOME"></option>
+</datalist>
+<datalist id="atividades-list">
+  <option *ngFor="let a of atividades" [value]="a.NOME"></option>
+</datalist>
+<datalist id="status-list">
+  <option *ngFor="let s of statusList" [value]="s.NOME"></option>
+</datalist>
+
+<!-- Modal Critério -->
+<div class="modal-overlay" *ngIf="mostrarModalCriterio" (click)="fecharModalCriterio()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Adicionar Coluna de Critério</h2>
+      <button class="close-btn" (click)="fecharModalCriterio()">
+        <lucide-icon [img]="X"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Selecione um Critério</label>
+        <select [(ngModel)]="criterioSelecionado" class="form-control">
+          <option value="">Selecione...</option>
+          <option *ngFor="let c of criteriosSalvos" [value]="c.id">{{ c.nome }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModalCriterio()">Cancelar</button>
+      <button class="btn-save" (click)="adicionarColunaCriterio()">
+        Adicionar Coluna
+      </button>
+    </div>
+  </div>
+</div>

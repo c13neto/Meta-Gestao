@@ -1,13 +1,5 @@
-.container-footer{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: var(--gap-p);
-  background-color: var(--bg-brand);
-  border-radius: var(--gap-m) var(--gap-m) 0 0;
-}
+:host { display: block; width: 100%; }
 
-.logo, .texto{
-  color: var(--brand-color);
-}
+.container-footer{ display: flex; flex-direction: row; align-items: center; justify-content: center; gap: var(--gap-p); background-color: var(--bg-brand); border-radius: var(--gap-m) var(--gap-m) 0 0; width: 100%; padding: 20px 0; box-sizing: border-box; margin-top: auto; }
+
+.logo, .texto{ color: var(--brand-color); }

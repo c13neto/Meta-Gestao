@@ -1,1 +1,45 @@
-<p>cadastro works!</p>
+<div class="login-container">
+  
+  <div *ngIf="mensagemErro" class="popup-mensagem popup-erro">
+    {{ mensagemErro }}
+  </div>
+  <div *ngIf="mensagemSucesso" class="popup-mensagem popup-sucesso">
+    {{ mensagemSucesso }}
+  </div>
+
+  <h2>Criar Conta</h2>
+
+  <form class="formulario" (ngSubmit)="cadastrar()">
+
+    <div class="campo">
+      <label for="nome">Nome Completo</label>
+      <input type="text" id="nome" name="nome" [(ngModel)]="nome" placeholder="Digite seu nome" required>
+    </div>
+
+    <div class="campo">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="Digite seu e-mail" required>
+    </div>
+
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" [(ngModel)]="senha" placeholder="Crie uma senha" required>
+    </div>
+
+    <div class="campo">
+      <label for="confirmarSenha">Confirmar Senha</label>
+      <input type="password" id="confirmarSenha" name="confirmarSenha" [(ngModel)]="confirmarSenha" placeholder="Repita a senha" required>
+    </div>
+
+    <div class="botoes-container">
+      <button type="submit" class="btn-entrar" [disabled]="carregando">
+        <span *ngIf="carregando">Enviando...</span>
+        <span *ngIf="!carregando">Cadastrar</span>
+      </button>
+
+      <button type="button" class="btn-cadastro" (click)="voltar()">Voltar</button>
+    </div>
+
+  </form>
+</div>
+

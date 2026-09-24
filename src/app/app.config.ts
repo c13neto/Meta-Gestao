@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { LucideAngularModule, Scroll } from 'lucide-angular';
+import { LucideAngularModule, Scroll, User, ChevronDown, Target, ArrowRight, Check, Pencil, Trash2, Plus } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     importProvidersFrom(
-      LucideAngularModule.pick({ Scroll })
+      LucideAngularModule.pick({ Scroll, User, ChevronDown, Target, ArrowRight, Check, Pencil, Trash2, Plus })
     )
   ]
 };

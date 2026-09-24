@@ -1,1 +1,93 @@
-<p>criterios works!</p>
+<div class="criterios-container">
+  
+  <!-- Popup Mensagem -->
+  <div class="popup-mensagem" *ngIf="mensagemPopup" [ngClass]="{'sucesso': popupSucesso, 'erro': !popupSucesso}">
+    {{ mensagemPopup }}
+  </div>
+
+  <!-- Add New Criterion Card -->
+  <div class="criterios-card add-card">
+    <div class="inputs-row">
+      <input type="text" class="input-form text-input" placeholder="Texto criterio" [(ngModel)]="novoCriterio.nome">
+      
+      <div class="select-wrapper-small">
+        <select class="input-form select-input" [(ngModel)]="novoCriterio.tipo" (change)="onTipoChange()">
+          <option value="cinco">5</option>
+          <option value="dez">10</option>
+          <option value="mais">Mais</option>
+        </select>
+        <lucide-icon name="chevron-down" [size]="14"></lucide-icon>
+      </div>
+
+      <ng-container *ngFor="let p of novoCriterio.pesos; let i = index">
+        <div class="peso-aval-box">
+          <input type="text" placeholder="Peso" class="mini-input" [(ngModel)]="p.peso" [disabled]="novoCriterio.tipo !== 'mais'">
+          <div class="divider"></div>
+          <input type="text" placeholder="Avaliação" class="mini-input" [(ngModel)]="p.aval">
+          <button *ngIf="novoCriterio.tipo === 'mais'" class="action-btn" (click)="removerPesoNovo(i)" style="padding: 2px; margin-left: 4px;">
+            <lucide-icon name="x" [size]="14" color="#ef4444"></lucide-icon>
+          </button>
+        </div>
+      </ng-container>
+
+      <button *ngIf="novoCriterio.tipo === 'mais'" class="action-btn mais-btn" (click)="adicionarMaisPeso()">
+        <lucide-icon name="plus" [size]="18" color="#3b82f6"></lucide-icon>
+      </button>
+
+      <button class="action-btn add-btn" (click)="salvarCriterio()" [disabled]="carregando">
+        <lucide-icon name="arrow-right" [size]="18" color="#10b981"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- List of Saved Criteria -->
+  <div class="criterios-card list-card" *ngIf="criteriosSalvos.length > 0">
+    <div class="list-row" *ngFor="let crit of criteriosSalvos">
+      <div class="row-col text-col">
+        <span *ngIf="!crit.editando">{{ crit.nome }}</span>
+        <input *ngIf="crit.editando" type="text" class="input-form" style="width:100%; padding: 4px;" [(ngModel)]="crit.nome">
+      </div>
+      <div class="row-col type-col">
+        <span *ngIf="!crit.editando">{{ crit.tipo }}</span>
+        <select *ngIf="crit.editando" class="input-form" style="width:100%; padding: 4px;" [(ngModel)]="crit.tipo" (change)="onEditTipoChange(crit)">
+          <option value="cinco">5</option>
+          <option value="dez">10</option>
+          <option value="mais">Mais</option>
+        </select>
+      </div>
+      
+      <ng-container *ngFor="let p of crit.pesos; let i = index">
+        <div class="peso-aval-box" [ngClass]="{'readonly-box': !crit.editando}">
+          <span class="readonly-text" *ngIf="!crit.editando">{{ p.peso }}</span>
+          <input type="text" class="mini-input" *ngIf="crit.editando" [(ngModel)]="p.peso" [disabled]="crit.tipo !== 'mais'">
+          
+          <div class="divider"></div>
+          
+          <span class="readonly-text" *ngIf="!crit.editando">{{ p.aval }}</span>
+          <input type="text" class="mini-input" *ngIf="crit.editando" [(ngModel)]="p.aval">
+
+          <button *ngIf="crit.editando && crit.tipo === 'mais'" class="action-btn" (click)="removerPeso(crit, i)" style="padding: 2px; margin-left: 4px;">
+            <lucide-icon name="x" [size]="14" color="#ef4444"></lucide-icon>
+          </button>
+        </div>
+      </ng-container>
+
+      <button *ngIf="crit.editando && crit.tipo === 'mais'" class="action-btn mais-btn" (click)="adicionarMaisPesoEdit(crit)" style="margin-right: 8px;">
+        <lucide-icon name="plus" [size]="18" color="#3b82f6"></lucide-icon>
+      </button>
+
+      <div class="row-actions">
+        <button class="action-btn check-btn" *ngIf="crit.editando" (click)="atualizarCriterio(crit)">
+          <lucide-icon name="check" [size]="18" color="#10b981"></lucide-icon>
+        </button>
+        <button class="action-btn edit-btn" *ngIf="!crit.editando" (click)="atualizarCriterio(crit)">
+          <lucide-icon name="pencil" [size]="18" color="#f59e0b"></lucide-icon>
+        </button>
+        <button class="action-btn delete-btn" (click)="deletarCriterio(crit)">
+          <lucide-icon name="trash-2" [size]="18" color="#ef4444"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

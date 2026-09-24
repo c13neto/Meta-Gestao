@@ -1,1 +1,88 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  
+  <header class="dash-header">
+    <div class="pontuacao-card">
+      <span class="pontuacao-label">Pontuação</span>
+      <div class="pontuacao-icon">
+        <lucide-icon name="target" [size]="20" color="#333"></lucide-icon>
+      </div>
+      <span class="pontuacao-valor">{{ pontuacaoFormatada }}</span>
+    </div>
+  </header>
+
+  <section class="carousel-section">
+    <div class="carousel-container" #carousel>
+      
+      <div class="carousel-card heatmap-card">
+        <h4>Heatmap / Calendário de prazos</h4>
+        <div class="heatmap-grid">
+          <div 
+            class="heatmap-cell" 
+            *ngFor="let dia of heatmapData" 
+            [ngStyle]="{'background-color': dia.cor}"
+            [title]="dia.data + ' | Pontos: ' + dia.pontos">
+          </div>
+        </div>
+        <div class="heatmap-legenda">
+          <span>Menos</span>
+          <div class="color-box" style="background-color: #ebedf0"></div>
+          <div class="color-box" style="background-color: #c6e48b"></div>
+          <div class="color-box" style="background-color: #7bc96f"></div>
+          <div class="color-box" style="background-color: #239a3b"></div>
+          <div class="color-box" style="background-color: #196127"></div>
+          <span>Mais</span>
+        </div>
+      </div>
+
+      <div class="carousel-card tarefas-card">
+        <h4>Resumo de Tarefas</h4>
+        <div class="tarefas-stats">
+          <div class="stat-box">
+            <span class="stat-value">{{ totalTarefas }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value pendente">{{ tarefasPendentes }}</span>
+            <span class="stat-label">Pendentes</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value concluido">{{ tarefasConcluidas }}</span>
+            <span class="stat-label">Concluídas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-card categorias-card" *ngIf="resumoCategorias.length > 0">
+        <h4>Top Categorias</h4>
+        <ul class="categorias-list">
+          <li *ngFor="let cat of resumoCategorias.slice(0, 5)">
+            <span class="cat-name">{{ cat.nome }}</span>
+            <span class="cat-count">{{ cat.count }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="carousel-card future-card" *ngIf="resumoCategorias.length === 0">
+        <h4>Categorias</h4>
+        <div class="em-breve-tag">Sem dados</div>
+      </div>
+
+      <div class="carousel-card future-card">
+        <h4>Relatório Financeiro</h4>
+        <div class="em-breve-tag">Em breve</div>
+      </div>
+
+      <div class="carousel-card future-card">
+        <h4>Análise de Usuários</h4>
+        <div class="em-breve-tag">Em breve</div>
+      </div>
+
+    </div> 
+    
+    <div class="carousel-controls">
+      <button class="carousel-btn prev-btn" (click)="scrollCarousel(-1)">&#10094;</button>
+      <button class="carousel-btn next-btn" (click)="scrollCarousel(1)">&#10095;</button>
+    </div>
+  </section>
+
+</div>

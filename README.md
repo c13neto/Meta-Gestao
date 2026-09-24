@@ -2,6 +2,9 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.24.
 
+## AI and Architecture Context
+For AI assistants and developers looking to understand the project structure, API concepts, and the in-memory data flow, please read the [ARCHITECTURE.md](./ARCHITECTURE.md) document.
+
 ## Development server
 
 To start a local development server, run:

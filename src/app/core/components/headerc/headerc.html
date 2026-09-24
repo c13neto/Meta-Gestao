@@ -1,2 +1,50 @@
-<nav>
+<nav class="header-nav">
+  <button class="user-profile-pill" (click)="toggleProfileModal()">
+    <div class="user-icon">
+      <lucide-icon name="user" [size]="20" color="#555"></lucide-icon>
+    </div>
+    <div class="user-info">
+      <span class="user-title">{{ userAcesso }}</span>
+      <span class="user-name">{{ userName }}</span>
+    </div>
+  </button>
+
+  <div class="page-selector-pill" tabindex="0" (click)="toggleDropdown()" (blur)="closeDropdown()">
+    <div class="select-wrapper">
+      <span class="page-select-value">{{ getPathName(currentPath) }}</span>
+      <lucide-icon name="chevron-down" [size]="16" color="#333" [class.rotate]="isDropdownOpen"></lucide-icon>
+    </div>
+    <div class="custom-dropdown" *ngIf="isDropdownOpen">
+      <div class="dropdown-item" [class.active]="currentPath === '/lista'" (click)="navigateToRoute('/lista')">Lista de Tarefas</div>
+      <div class="dropdown-item" [class.active]="currentPath === '/criterios'" (click)="navigateToRoute('/criterios')">Critérios</div>
+      <div class="dropdown-item" [class.active]="currentPath === '/dashboard'" (click)="navigateToRoute('/dashboard')">Dashboard</div>
+    </div>
+  </div>
 </nav>
+<!-- Modal Perfil -->
+<div class="modal-overlay" *ngIf="isProfileModalOpen" (click)="closeProfileModal($event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Informações do Perfil</h3>
+      <button class="close-btn" (click)="closeProfileModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-group">
+        <label>Nome</label>
+        <input type="text" [(ngModel)]="editUserName" placeholder="Seu nome">
+      </div>
+      <div class="info-group">
+        <label>E-mail</label>
+        <input type="email" [(ngModel)]="userEmail" disabled>
+      </div>
+      <div class="info-group">
+        <label>Nível de Acesso</label>
+        <input type="text" [value]="userAcesso" disabled>
+      </div>
+      <div class="modal-actions">
+        <button class="save-btn" (click)="saveProfile()">Salvar Alterações</button>
+        <button class="logout-btn" (click)="logout()">Sair / Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
