@@ -1,5 +1,6 @@
 :host { display: block; width: 100%; }
 
-.container-footer{ display: flex; flex-direction: row; align-items: center; justify-content: center; gap: var(--gap-p); background-color: var(--bg-brand); border-radius: var(--gap-m) var(--gap-m) 0 0; width: 100%; padding: 20px 0; box-sizing: border-box; margin-top: auto; }
+.container-footer{ display: flex; flex-direction: row; align-items: center; justify-content: center; gap: var(--gap-p); background-color: var(--bg-brand); border-radius: var(--gap-m) var(--gap-m) 0 0; width: 100%; padding: 8px 0; box-sizing: border-box; margin-top: auto; }
 
-.logo, .texto{ color: var(--brand-color); }
+.logo{ color: var(--brand-color); width: 20px; height: 20px; }
+.texto{ color: var(--brand-color); font-size: 0.85rem; margin: 0; }

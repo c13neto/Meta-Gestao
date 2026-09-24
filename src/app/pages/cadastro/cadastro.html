@@ -31,6 +31,13 @@
       <input type="password" id="confirmarSenha" name="confirmarSenha" [(ngModel)]="confirmarSenha" placeholder="Repita a senha" required>
     </div>
 
+    <div class="campo-checkbox">
+      <label class="checkbox-label">
+        <input type="checkbox" name="aceiteLgpd" [(ngModel)]="aceiteLgpd" required>
+        Li e concordo com os Termos de Uso e a Política de Privacidade (LGPD).
+      </label>
+    </div>
+
     <div class="botoes-container">
       <button type="submit" class="btn-entrar" [disabled]="carregando">
         <span *ngIf="carregando">Enviando...</span>

@@ -57,4 +57,6 @@ lucide-icon.rotate { transform: rotate(180deg); }
 
 @media (max-width: 600px) {
   .header-nav { flex-direction: column; gap: 15px; padding: 20px; }
+  .modal-actions { flex-direction: column; gap: 10px; }
+  .modal-actions button { width: 100%; }
 }

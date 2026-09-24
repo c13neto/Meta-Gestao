@@ -16,8 +16,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--gap-m);
-  gap: var(--gap-p);
+  padding: 8px 16px;
+  gap: 6px;
+}
+
+.controls-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.controls-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.controls-right {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nova-categoria-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .categoria-pill,
@@ -31,6 +57,7 @@
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  white-space: nowrap;
 }
 
 .categoria-pill:hover,
@@ -69,6 +96,7 @@
   width: 100%;
   overflow-x: auto;
   border-top: 1px solid #e2e8f0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tarefas-grid {
@@ -100,11 +128,13 @@
   width: 20px;
   height: 20px;
   color: #0f172a;
+  flex-shrink: 0;
 }
 
 .icon-plus {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
 
 .add-button {
@@ -120,6 +150,7 @@
   cursor: pointer;
   transition: background-color 0.2s;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  white-space: nowrap;
 }
 
 .add-button:hover {
@@ -135,7 +166,39 @@
   border-right: none;
 }
 
-/* Mobile Adjustments */
+/* --- Tablet breakpoint (≤1024px) --- */
+@media (max-width: 1024px) {
+  .lista-container {
+    width: 98%;
+    margin: var(--gap-p) auto;
+  }
+
+  .tarefas-grid {
+    min-width: 720px;
+  }
+
+  .col-header {
+    padding: 6px;
+    font-size: 0.85rem;
+    gap: 4px;
+  }
+
+  .header-text {
+    font-size: 0.8rem;
+  }
+
+  .text-cell {
+    padding: 8px !important;
+    font-size: 0.85rem;
+  }
+
+  .add-button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* --- Mobile breakpoint (≤768px) --- */
 @media (max-width: 768px) {
   .lista-container {
     width: 100%;
@@ -143,44 +206,243 @@
     border-left: none;
     border-right: none;
     min-height: calc(100vh - 120px);
+    margin: 0 auto;
   }
 
+  .controls-section {
+    padding: var(--gap-p);
+    gap: var(--gap-p);
+  }
+
+  /* Stack controls vertically on mobile */
+  .controls-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  /* Left side controls: pill + filter */
+  .controls-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* "Nova Tarefa" button container — full width */
+  .controls-right {
+    width: 100%;
+  }
+
+  .controls-section .btn-save {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Grid adjustments */
   .tarefas-grid {
-    min-width: unset; /* Allow fitting to screen */
-    grid-template-columns: repeat(7, 1fr) 2fr;
+    min-width: 650px;
+    min-height: 40vh;
   }
 
   .col-header {
-    flex-direction: column;
-    padding: var(--gap-p);
-    text-align: center;
-    align-items: center;
-  }
-  
-  .header-text {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
-    letter-spacing: -2px; /* make letters closer */
+    padding: 6px 4px;
     font-size: 0.8rem;
-    margin-top: 8px;
+    gap: 2px;
   }
-  
-  .col-header.no-border {
-    padding: var(--gap-p);
+
+  .header-text {
+    font-size: 0.75rem;
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .icon-plus {
+    width: 14px;
+    height: 14px;
+  }
+
+  .text-cell {
+    padding: 6px 4px !important;
+    font-size: 0.8rem;
   }
 
   .add-button {
-    flex-direction: column;
-    padding: 8px 4px;
+    padding: 6px 10px;
     font-size: 0.8rem;
     gap: 4px;
   }
-  
-  .add-button span {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
+
+  .concluir-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .icon-check {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Action buttons tighter */
+  .action-cell {
+    gap: 4px !important;
+  }
+
+  .icon-btn {
+    padding: 3px;
+  }
+
+  /* Inline dropdown — adapt positioning */
+  .inline-add-dropdown {
+    position: fixed !important;
+    left: var(--gap-p) !important;
+    right: var(--gap-p) !important;
+    top: auto !important;
+    bottom: var(--gap-m) !important;
+    min-width: auto !important;
+    width: auto !important;
+    border-radius: 12px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    z-index: 100;
+  }
+
+  .inline-add-dropdown .inline-input {
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+
+  .inline-add-dropdown .btn-send {
+    width: 42px;
+    height: 42px;
+  }
+
+  /* Modal full-width on mobile */
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .empty-state {
+    padding: 24px;
+    font-size: 0.85rem;
+  }
+
+  /* Category select: full width on mobile */
+  .controls-section select.form-control {
+    min-width: unset !important;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* New category input row on mobile */
+  .controls-section input.form-control {
+    width: auto !important;
+    flex: 1;
+    min-width: 0;
   }
 }
+
+/* --- Small mobile breakpoint (≤480px) --- */
+@media (max-width: 480px) {
+  .lista-container {
+    border: none;
+    border-radius: 0;
+    min-height: calc(100vh - 100px);
+  }
+
+  .controls-section {
+    padding: 8px;
+  }
+
+  .categoria-pill {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+  }
+
+  .tarefas-grid {
+    min-width: 580px;
+  }
+
+  .col-header {
+    padding: 4px 3px;
+    font-size: 0.72rem;
+  }
+
+  .header-text {
+    font-size: 0.7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60px;
+  }
+
+  .text-cell {
+    padding: 4px 3px !important;
+    font-size: 0.75rem;
+  }
+
+  .add-button {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .btn-save {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .btn-cancel {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .form-control {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .modal-content {
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+  }
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;

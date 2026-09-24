@@ -21,6 +21,7 @@ export class Cadastro {
   email = '';
   senha = '';
   confirmarSenha = '';
+  aceiteLgpd = false;
   mensagemErro = '';
   mensagemSucesso = '';
   carregando = false;
@@ -35,6 +36,11 @@ export class Cadastro {
 
     if (this.senha !== this.confirmarSenha) {
       this.mostrarErro('As senhas não coincidem!');
+      return;
+    }
+
+    if (!this.aceiteLgpd) {
+      this.mostrarErro('Você deve aceitar os Termos de Uso e a Política de Privacidade (LGPD)!');
       return;
     }
 

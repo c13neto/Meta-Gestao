@@ -65,20 +65,56 @@ export class Dashboard implements OnInit {
   }
 
   processarDados(conclusoes: any[], tarefas: any[], categorias: any[], statusList: any[]) {
-    // 1. Process Conclusoes
-    this.pontuacaoTotal = conclusoes
-      .filter(item => item.ATIVO !== false && item.ativo !== false)
-      .reduce((total, item) => total + (Number(item.PONTOS) || Number(item.pontos) || 0), 0);
+    const tarefasAtivas = tarefas.filter(t => t.ATIVO !== false && t.ativo !== false);
+    this.totalTarefas = tarefasAtivas.length;
 
-    const pontosPorDia: { [data: string]: number } = {};
-    conclusoes.forEach(item => {
-      const h = item.HORARIO || item.horario;
-      if (h && item.ATIVO !== false && item.ativo !== false) {
-        const dataStr = new Date(h).toISOString().split('T')[0];
-        pontosPorDia[dataStr] = (pontosPorDia[dataStr] || 0) + (Number(item.PONTOS) || Number(item.pontos) || 0);
-      }
+    const completedStatusIds = statusList
+       .filter(s => {
+          const name = (s.NOME || s.nome || '').toLowerCase();
+          return name.includes('concluíd') || name.includes('finalizad') || name.includes('pront') || name.includes('feit');
+       })
+       .map(s => String(s.UUID || s.id));
+       
+    const tarefasConcluidasList = tarefasAtivas.filter(t => {
+      if (t.CONCLUIDA || t.concluida) return true;
+      const sId = String(t['UUID STATUS'] || t.status_id || t.STATUS || '');
+      return completedStatusIds.includes(sId) || sId.toLowerCase().includes('concluíd') || sId.toLowerCase().includes('finaliz');
     });
 
+    this.tarefasConcluidas = tarefasConcluidasList.length;
+    this.tarefasPendentes = this.totalTarefas - this.tarefasConcluidas;
+
+    // 1. Process Conclusoes and Points
+    this.pontuacaoTotal = 0;
+    const pontosPorDia: { [data: string]: number } = {};
+    const hojeData = new Date().toISOString().split('T')[0];
+
+    const conclusoesAtivas = conclusoes.filter(item => item.ATIVO !== false && item.ativo !== false);
+
+    tarefasConcluidasList.forEach(t => {
+      const tId = String(t.UUID || t.id || t.ID || '');
+      // Find the latest active conclusion for this task
+      const conclusao = conclusoesAtivas.find(c => String(c.idTarefa || c.ID_TAREFA) === tId);
+      
+      let pontos = 10;
+      let dataStr = hojeData;
+
+      if (conclusao) {
+        // Fallback for points parsing. If string, it is handled gracefully by Number(). If it fails, fallback to 0.
+        const parsedPoints = Number(conclusao.PONTOS !== undefined ? conclusao.PONTOS : conclusao.pontos);
+        pontos = !isNaN(parsedPoints) ? parsedPoints : 0;
+        
+        const h = conclusao.HORARIO || conclusao.horario;
+        if (h) {
+          dataStr = new Date(h).toISOString().split('T')[0];
+        }
+      }
+
+      this.pontuacaoTotal += pontos;
+      pontosPorDia[dataStr] = (pontosPorDia[dataStr] || 0) + pontos;
+    });
+
+    // 2. Generate Heatmap
     this.heatmapData = [];
     const hoje = new Date();
     for (let i = 27; i >= 0; i--) {
@@ -100,25 +136,6 @@ export class Dashboard implements OnInit {
         cor: this.getCorPorValor(valorIntensidade)
       });
     }
-
-    // 2. Process Tarefas
-    const tarefasAtivas = tarefas.filter(t => t.ATIVO !== false && t.ativo !== false);
-    this.totalTarefas = tarefasAtivas.length;
-
-    const completedStatusIds = statusList
-       .filter(s => {
-          const name = (s.NOME || s.nome || '').toLowerCase();
-          return name.includes('concluíd') || name.includes('finalizad') || name.includes('pront') || name.includes('feit');
-       })
-       .map(s => String(s.UUID || s.id));
-       
-    this.tarefasConcluidas = tarefasAtivas.filter(t => {
-      if (t.CONCLUIDA || t.concluida) return true;
-      const sId = String(t['UUID STATUS'] || t.status_id || t.STATUS || '');
-      return completedStatusIds.includes(sId) || sId.toLowerCase().includes('concluíd') || sId.toLowerCase().includes('finaliz');
-    }).length;
-
-    this.tarefasPendentes = this.totalTarefas - this.tarefasConcluidas;
 
     // 3. Process Categories
     const catMap = new Map<string, number>();

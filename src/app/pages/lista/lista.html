@@ -1,7 +1,7 @@
 <div class="lista-container">
   <div class="controls-section">
-    <div style="display: flex; gap: 16px; align-items: center; width: 100%; justify-content: space-between;">
-      <div style="display: flex; gap: 16px; align-items: center;">
+    <div class="controls-row">
+      <div class="controls-left">
         <div class="categoria-pill">Tarefas</div>
         <ng-container *ngIf="filtroCategoria !== '_NOVA_'">
           <select class="form-control" [(ngModel)]="filtroCategoria" (change)="onFiltroCategoriaChange()" style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; min-width: 150px; cursor: pointer;">
@@ -11,7 +11,7 @@
           </select>
         </ng-container>
         
-        <div *ngIf="filtroCategoria === '_NOVA_'" style="display: flex; gap: 8px; align-items: center;">
+        <div *ngIf="filtroCategoria === '_NOVA_'" class="nova-categoria-row">
           <input type="text" [(ngModel)]="novaCategoriaNome" class="form-control" placeholder="Nova categoria..." style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; width: 150px;" (keyup.enter)="salvarNovaCategoria()" autofocus>
           <button class="btn-save" (click)="salvarNovaCategoria()" style="padding: 6px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
             <lucide-icon [img]="Save" class="icon" style="width: 14px; height: 14px; color: white;"></lucide-icon> Salvar
@@ -21,7 +21,7 @@
           </button>
         </div>
       </div>
-      <div style="position: relative;">
+      <div class="controls-right">
         <button class="btn-save" style="display: flex; align-items: center; gap: 8px;" (click)="mostrarModal = !mostrarModal" [disabled]="carregando">
           <lucide-icon [img]="Plus" class="icon-plus" color="white"></lucide-icon> Nova Tarefa
         </button>
@@ -87,11 +87,14 @@
         </div>
       </div>
       <!-- Critérios Headers -->
-      <div class="col-header" *ngFor="let crit of criteriosAtivos" style="position: relative;">
+      <div class="col-header" *ngFor="let crit of criteriosAtivos" style="position: relative; justify-content: space-between; padding-right: 4px;">
         <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar(crit.nome)">
           <span class="header-text">{{ crit.nome }}</span>
           <span *ngIf="colunaOrdenacao === crit.nome">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
+        <button class="icon-btn" (click)="removerColunaCriterio(crit.id)" title="Remover coluna" style="padding: 4px;">
+          <lucide-icon [img]="X" class="icon" style="width: 14px; height: 14px; color: #ef4444;"></lucide-icon>
+        </button>
       </div>
 
       <div class="col-header no-border" style="justify-content: center; align-items: center;">

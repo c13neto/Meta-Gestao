@@ -186,12 +186,17 @@ export class Api {
         
         criterios.forEach(crit => {
           const nomeCrit = crit.NOME || crit.nome;
-          const valorSelecionado = tarefas[index][nomeCrit];
+          let valorSelecionado = tarefas[index][nomeCrit];
           if (valorSelecionado) {
             const critId = crit.UUID || crit.id || crit.ID;
             const opcao = opcoes.find(o => 
               (o['UUID CRITERIO'] === critId || o.criterio_id === critId || o.ID_CRITERIO === critId || o['ID CRITERIO'] === critId) && 
-              (o.AVALIACAO === valorSelecionado || o.avaliacao === valorSelecionado || o.TEXTO === valorSelecionado || o.texto === valorSelecionado)
+              (String(o.AVALIACAO).trim().toLowerCase() === String(valorSelecionado).trim().toLowerCase() || 
+               String(o.avaliacao).trim().toLowerCase() === String(valorSelecionado).trim().toLowerCase() || 
+               String(o.TEXTO).trim().toLowerCase() === String(valorSelecionado).trim().toLowerCase() || 
+               String(o.texto).trim().toLowerCase() === String(valorSelecionado).trim().toLowerCase() ||
+               String(o.PESO).trim() === String(valorSelecionado).trim() ||
+               String(o.peso).trim() === String(valorSelecionado).trim())
             );
             if (opcao) {
               pontosCalculados += Number(opcao.PESO || opcao.peso || 0);
@@ -202,6 +207,15 @@ export class Api {
         if (pontosCalculados === 0) pontosCalculados = payload.pontos || 10;
         
         if (!this.db['conclusao']) this.db['conclusao'] = [];
+        
+        // Sempre desativar as conclusões anteriores ativas dessa tarefa para evitar duplicação de pontos
+        this.db['conclusao'].forEach(c => {
+          if (c.idTarefa === id || c.ID_TAREFA === id) {
+            c.ativo = false;
+            c.ATIVO = false;
+          }
+        });
+
         if (concluida) {
           this.db['conclusao'].push({
             id: this.generateId(),
@@ -211,11 +225,6 @@ export class Api {
             idAutorizacao: this.idAutorizacao,
             ativo: true
           });
-        } else {
-          const concIndex = this.db['conclusao'].findIndex(c => c.idTarefa === id && (c.ativo !== false && c.ATIVO !== false));
-          if (concIndex >= 0) {
-            this.db['conclusao'][concIndex].ativo = false;
-          }
         }
         
         this.saveDb();

@@ -294,12 +294,13 @@ export class Lista implements OnInit {
     };
 
     this.api.postCustom(payload).subscribe(res => {
+      tarefa._loading = false;
       if (res.sucesso) {
-        tarefa.CONCLUIDA = !tarefa.CONCLUIDA;
+        // The mock API already toggles the value in the DB, so reload to stay in sync
+        this.carregarDados();
       } else {
         alert(res.mensagem);
       }
-      tarefa._loading = false;
     }, () => {
       alert('Erro ao marcar conclusão.');
       tarefa._loading = false;
@@ -307,21 +308,38 @@ export class Lista implements OnInit {
   }
 
   editarTarefa(t: any) {
-    t._original = { ...t };
+    // Snapshot BEFORE setting _isEditing so the original doesn't contain _isEditing=true
+    const snapshot: any = {};
+    for (const key of Object.keys(t)) {
+      if (!key.startsWith('_')) {
+        snapshot[key] = t[key];
+      }
+    }
+    t._original = snapshot;
     t._isEditing = true;
   }
 
   cancelarEdicao(t: any) {
-    Object.assign(t, t._original);
+    if (t._original) {
+      // Restore only data properties (non-transient)
+      for (const key of Object.keys(t._original)) {
+        t[key] = t._original[key];
+      }
+    }
     t._isEditing = false;
+    t._loading = false;
+    delete t._original;
   }
 
   salvarEdicao(t: any) {
     const id = t.ID || t.id || t.id_tarefa;
-    if (!id) return;
+    if (!id) {
+      t._isEditing = false;
+      return;
+    }
 
-    const modifiedFields = [];
-    const modifiedValues = [];
+    const modifiedFields: string[] = [];
+    const modifiedValues: any[] = [];
 
     const fixedFields = ['CATEGORIA', 'ATIVIDADE', 'STATUS', 'DATA_COMECO', 'DATA_FIM'];
     for (const f of fixedFields) {
@@ -343,13 +361,13 @@ export class Lista implements OnInit {
       return;
     }
 
-    if (modifiedFields.includes('CATEGORIA') && t.CATEGORIA && !this.categorias.find(c => c.NOME === t.CATEGORIA)) {
+    if (modifiedFields.includes('CATEGORIA') && t.CATEGORIA && !this.categorias.find(c => (c.NOME || c.nome) === t.CATEGORIA)) {
       this.api.criar('categoria', { nome: t.CATEGORIA }).subscribe(res => { if(res.sucesso) this.categorias.push({ NOME: t.CATEGORIA }); });
     }
-    if (modifiedFields.includes('ATIVIDADE') && t.ATIVIDADE && !this.atividades.find(a => a.NOME === t.ATIVIDADE)) {
+    if (modifiedFields.includes('ATIVIDADE') && t.ATIVIDADE && !this.atividades.find(a => (a.NOME || a.nome) === t.ATIVIDADE)) {
       this.api.criar('atividade', { nome: t.ATIVIDADE }).subscribe(res => { if(res.sucesso) this.atividades.push({ NOME: t.ATIVIDADE }); });
     }
-    if (modifiedFields.includes('STATUS') && t.STATUS && !this.statusList.find(s => s.NOME === t.STATUS)) {
+    if (modifiedFields.includes('STATUS') && t.STATUS && !this.statusList.find(s => (s.NOME || s.nome) === t.STATUS)) {
       this.api.criar('status', { nome: t.STATUS }).subscribe(res => { if(res.sucesso) this.statusList.push({ NOME: t.STATUS }); });
     }
 
@@ -360,14 +378,17 @@ export class Lista implements OnInit {
       modificacoes: modifiedValues
     }).subscribe(res => {
       t._loading = false;
-      if (res.sucesso) {
-        t._isEditing = false;
-      } else {
-        alert(res.mensagem);
+      t._isEditing = false;
+      
+      if (!res.sucesso) {
+        alert(res.mensagem || 'Erro interno ao salvar. Atualizamos a interface por segurança.');
       }
+      this.carregarDados();
     }, () => {
       t._loading = false;
-      alert('Erro ao salvar edição.');
+      t._isEditing = false;
+      alert('Erro ao comunicar com a base local.');
+      this.carregarDados();
     });
   }
 
