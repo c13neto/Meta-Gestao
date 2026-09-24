@@ -23,6 +23,18 @@ export class Api {
     if (saved) {
       try {
         this.db = JSON.parse(saved);
+        // Self-healing: remove transient UI state (_isEditing, _loading) that might have been saved
+        for (const rota in this.db) {
+          if (Array.isArray(this.db[rota])) {
+            this.db[rota].forEach((item: any) => {
+              if (typeof item === 'object' && item !== null) {
+                Object.keys(item).forEach(key => {
+                  if (key.startsWith('_')) delete item[key];
+                });
+              }
+            });
+          }
+        }
       } catch (e) {
         this.db = {};
       }
@@ -59,10 +71,11 @@ export class Api {
           items = this.db[rota];
       }
     }
+    const clonedItems = JSON.parse(JSON.stringify(items));
     return of({
       sucesso: true,
       mensagem: 'Sucesso',
-      devMsg: items as any
+      devMsg: clonedItems as any
     });
   }
 

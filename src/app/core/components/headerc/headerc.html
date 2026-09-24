@@ -15,9 +15,9 @@
       <lucide-icon name="chevron-down" [size]="16" color="#333" [class.rotate]="isDropdownOpen"></lucide-icon>
     </div>
     <div class="custom-dropdown" *ngIf="isDropdownOpen">
-      <div class="dropdown-item" [class.active]="currentPath === '/lista'" (click)="navigateToRoute('/lista')">Lista de Tarefas</div>
-      <div class="dropdown-item" [class.active]="currentPath === '/criterios'" (click)="navigateToRoute('/criterios')">Critérios</div>
-      <div class="dropdown-item" [class.active]="currentPath === '/dashboard'" (click)="navigateToRoute('/dashboard')">Dashboard</div>
+      <div class="dropdown-item" [class.active]="currentPath === '/lista'" (click)="navigateToRoute('/lista', $event)">Lista de Tarefas</div>
+      <div class="dropdown-item" [class.active]="currentPath === '/criterios'" (click)="navigateToRoute('/criterios', $event)">Critérios</div>
+      <div class="dropdown-item" [class.active]="currentPath === '/dashboard'" (click)="navigateToRoute('/dashboard', $event)">Dashboard</div>
     </div>
   </div>
 </nav>

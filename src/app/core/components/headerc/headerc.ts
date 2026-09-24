@@ -95,7 +95,10 @@ export class Headerc implements OnInit {
     window.location.href = '/login';
   }
 
-  navigateToRoute(route: string) {
+  navigateToRoute(route: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
     if (route) {
       this.router.navigate([route]);
       this.isDropdownOpen = false;

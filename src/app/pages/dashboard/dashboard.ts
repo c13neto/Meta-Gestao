@@ -29,6 +29,7 @@ export class Dashboard implements OnInit {
   tarefasConcluidas: number = 0;
   tarefasPendentes: number = 0;
   resumoCategorias: { nome: string; count: number }[] = [];
+  resumoStatus: { nome: string; count: number }[] = [];
 
   constructor(private api: Api) {}
 
@@ -142,17 +143,28 @@ export class Dashboard implements OnInit {
     tarefasAtivas.forEach(t => {
       const cId = t['UUID CATEGORIA'] || t.categoria_id || t.CATEGORIA;
       if (cId) {
-        catMap.set(cId, (catMap.get(cId) || 0) + 1);
+        const catObj = categorias.find(c => (c.UUID || c.id) === cId || c.NOME === cId);
+        const nome = catObj ? (catObj.NOME || catObj.nome) : cId;
+        catMap.set(nome, (catMap.get(nome) || 0) + 1);
       }
     });
 
-    this.resumoCategorias = [];
-    catMap.forEach((count, cId) => {
-      const catObj = categorias.find(c => (c.UUID || c.id) === cId || c.NOME === cId);
-      const nome = catObj ? (catObj.NOME || catObj.nome) : cId;
-      this.resumoCategorias.push({ nome, count });
-    });
+    this.resumoCategorias = Array.from(catMap.entries()).map(([nome, count]) => ({ nome, count }));
     this.resumoCategorias.sort((a, b) => b.count - a.count);
+
+    // 4. Process Status
+    const statusMap = new Map<string, number>();
+    tarefasAtivas.forEach(t => {
+      const sId = t['UUID STATUS'] || t.status_id || t.STATUS;
+      if (sId) {
+        const statusObj = statusList.find(s => (s.UUID || s.id) === sId || s.NOME === sId);
+        const nome = statusObj ? (statusObj.NOME || statusObj.nome) : sId;
+        statusMap.set(nome, (statusMap.get(nome) || 0) + 1);
+      }
+    });
+
+    this.resumoStatus = Array.from(statusMap.entries()).map(([nome, count]) => ({ nome, count }));
+    this.resumoStatus.sort((a, b) => b.count - a.count);
   }
 
   getCorPorValor(valor: number): string {

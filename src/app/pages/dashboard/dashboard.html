@@ -67,9 +67,19 @@
         <div class="em-breve-tag">Sem dados</div>
       </div>
 
-      <div class="carousel-card future-card">
-        <h4>Relatório Financeiro</h4>
-        <div class="em-breve-tag">Em breve</div>
+      <div class="carousel-card categorias-card" *ngIf="resumoStatus.length > 0">
+        <h4>Top Status</h4>
+        <ul class="categorias-list">
+          <li *ngFor="let st of resumoStatus.slice(0, 5)">
+            <span class="cat-name">{{ st.nome }}</span>
+            <span class="cat-count">{{ st.count }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="carousel-card future-card" *ngIf="resumoStatus.length === 0">
+        <h4>Status</h4>
+        <div class="em-breve-tag">Sem dados</div>
       </div>
 
       <div class="carousel-card future-card">
