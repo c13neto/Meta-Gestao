@@ -1,0 +1,13 @@
+.container-footer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-p);
+  background-color: var(--bg-brand);
+  border-radius: var(--gap-m) var(--gap-m) 0 0;
+}
+
+.logo, .texto{
+  color: var(--brand-color);
+}
