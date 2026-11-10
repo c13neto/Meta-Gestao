@@ -1,15 +1,21 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .criterios-container {
-  padding: 30px;
+  padding: 28px;
+  width: 95%;
   max-width: 1300px;
   margin: 0 auto;
   font-family: 'Inter', sans-serif;
-  background-color: #f2f5f8;
-  border: 1px solid #e1e6ec;
-  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-x: auto;
 }
 
 /* Popup Toast */
@@ -19,12 +25,12 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
   font-weight: 600;
   z-index: 10000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.25s ease-out;
 }
 .popup-mensagem.sucesso { background-color: #10b981; }
 .popup-mensagem.erro { background-color: #ef4444; }
@@ -36,25 +42,28 @@
 
 /* Cards Wrapper */
 .criterios-card {
-  background: white;
-  border: 1px solid #e5e9f0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 15px 20px;
-  width: max-content; /* Ocupar o espaço das linhas horizontais */
-  min-width: 100%;
+  padding: 18px 22px;
+  width: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* Rows Flexbox */
 .inputs-row, .list-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .list-row {
-  border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 14px;
 }
 .list-row:last-child {
   border-bottom: none;
@@ -63,16 +72,25 @@
 
 /* Base Form Inputs */
 .input-form {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
   font-size: 0.85rem;
+  font-family: inherit;
   outline: none;
-  color: #333;
+  color: #0f172a;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.input-form:focus { border-color: #3f51b5; }
+.input-form:focus {
+  border-color: var(--brand-color, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
 
-.text-input { width: 150px; }
+.text-input {
+  width: 155px;
+  font-weight: 500;
+}
 
 /* Custom Small Select */
 .select-wrapper-small {
@@ -81,92 +99,134 @@
   align-items: center;
 }
 .select-input {
-  width: 120px;
+  width: 90px;
   appearance: none;
-  padding-right: 25px;
+  padding-right: 26px;
   cursor: pointer;
+  font-weight: 500;
 }
 .select-wrapper-small lucide-icon {
   position: absolute;
   right: 8px;
   pointer-events: none;
+  color: #64748b;
 }
 
 /* Peso | Avaliação Box */
 .peso-aval-box {
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .mini-input {
-  width: 65px;
+  width: 72px;
   border: none;
-  padding: 8px;
+  padding: 7px 6px;
   font-size: 0.8rem;
+  font-family: inherit;
   outline: none;
   text-align: center;
+  color: #0f172a;
+  background: transparent;
 }
-.mini-input:focus { background: #f0f4ff; }
+.mini-input:first-child {
+  width: 44px;
+}
+.mini-input:disabled {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+}
+.mini-input:focus {
+  background: #eff6ff;
+}
 
 .divider {
   width: 1px;
-  height: 20px;
-  background: #ccc;
+  height: 22px;
+  background: #e2e8f0;
 }
 
 /* Readonly Box (List Card) */
 .readonly-box {
-  background: transparent;
+  background: #ffffff;
   padding: 0;
 }
 .readonly-text {
-  width: 65px;
-  padding: 8px;
+  min-width: 42px;
+  padding: 6px 8px;
   font-size: 0.8rem;
   text-align: center;
-  color: #555;
+  color: #334155;
+  font-weight: 500;
   display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+.readonly-text:hover {
+  background-color: #eff6ff;
+}
+.readonly-text:first-child {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+  min-width: 34px;
+}
+.readonly-text:first-child:hover {
+  background: #e2e8f0;
 }
 
 /* Columns for List */
 .row-col {
   font-size: 0.85rem;
-  color: #333;
-  padding: 8px 12px;
-  border: 1px solid #e5e9f0;
-  border-radius: 6px;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 7px 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background-color 0.15s;
 }
-.text-col { width: 150px; box-sizing: border-box; }
-.type-col { width: 120px; box-sizing: border-box; }
+.row-col:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+.text-col { width: 155px; box-sizing: border-box; }
+.type-col { width: 90px; box-sizing: border-box; text-align: center; text-transform: capitalize; }
 
 /* Actions */
 .row-actions {
   display: flex;
   gap: 8px;
-  margin-left: 10px;
+  margin-left: auto;
 }
 
 .action-btn {
-  background: white;
-  border: 1px solid #e1e6ec;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.add-btn { border-color: #10b981; }
-.add-btn:hover { background: #d1fae5; }
+.add-btn { border-color: #10b981; margin-left: auto; }
+.add-btn:hover { background: #d1fae5; transform: translateY(-1px); }
 
-.mais-btn { border-color: #3b82f6; margin-right: 5px;}
+.mais-btn { border-color: #3b82f6; }
 .mais-btn:hover { background: #dbeafe; }
 
 .check-btn { border-color: #10b981; }
@@ -180,44 +240,22 @@
 
 @media (max-width: 768px) {
   .criterios-container {
-    padding: 15px;
-    border-radius: 8px;
+    padding: 16px;
+    width: 100%;
+    border-radius: 12px;
   }
   .criterios-card {
-    padding: 20px 15px;
-    width: 100%;
-    min-width: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 16px;
   }
   .inputs-row, .list-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
+    justify-content: flex-start;
   }
-  .text-input, .select-input, .text-col, .type-col {
+  .text-input, .text-col {
     width: 100%;
-    max-width: 250px;
-    text-align: center;
-  }
-  .select-wrapper-small {
-    width: 100%;
-    max-width: 250px;
-    justify-content: center;
-  }
-  .select-input {
-    width: 100%;
-    text-align: center;
-    padding-left: 20px;
-  }
-  .select-wrapper-small lucide-icon {
-    right: 15px;
   }
   .row-actions {
     margin-left: 0;
-    margin-top: 5px;
-    justify-content: center;
+    width: 100%;
+    justify-content: flex-end;
   }
 }

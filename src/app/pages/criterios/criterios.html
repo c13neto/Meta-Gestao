@@ -43,13 +43,24 @@
   <!-- List of Saved Criteria -->
   <div class="criterios-card list-card" *ngIf="criteriosSalvos.length > 0">
     <div class="list-row" *ngFor="let crit of criteriosSalvos">
-      <div class="row-col text-col">
-        <span *ngIf="!crit.editando">{{ crit.nome }}</span>
-        <input *ngIf="crit.editando" type="text" class="input-form" style="width:100%; padding: 4px;" [(ngModel)]="crit.nome">
+      <div class="row-col text-col" (dblclick)="ativarEdicaoCritCampo(crit, 'nome', $event)" title="Duplo clique para editar nome" style="cursor: pointer;">
+        <span *ngIf="!crit.editando && crit._editField !== 'nome'">{{ crit.nome }}</span>
+        <input *ngIf="crit.editando || crit._editField === 'nome'"
+               type="text"
+               class="input-form"
+               style="width:100%; padding: 4px;"
+               [(ngModel)]="crit.nome"
+               (keyup.enter)="!crit.editando && salvarCritCampoIndividual(crit, 'nome')"
+               (blur)="!crit.editando && salvarCritCampoIndividual(crit, 'nome')">
       </div>
-      <div class="row-col type-col">
-        <span *ngIf="!crit.editando">{{ crit.tipo }}</span>
-        <select *ngIf="crit.editando" class="input-form" style="width:100%; padding: 4px;" [(ngModel)]="crit.tipo" (change)="onEditTipoChange(crit)">
+      <div class="row-col type-col" (dblclick)="ativarEdicaoCritCampo(crit, 'tipo', $event)" title="Duplo clique para editar tipo" style="cursor: pointer;">
+        <span *ngIf="!crit.editando && crit._editField !== 'tipo'">{{ crit.tipo }}</span>
+        <select *ngIf="crit.editando || crit._editField === 'tipo'"
+                class="input-form"
+                style="width:100%; padding: 4px;"
+                [(ngModel)]="crit.tipo"
+                (change)="crit.editando ? onEditTipoChange(crit) : salvarCritCampoIndividual(crit, 'tipo')"
+                (blur)="!crit.editando && salvarCritCampoIndividual(crit, 'tipo')">
           <option value="cinco">5</option>
           <option value="dez">10</option>
           <option value="mais">Mais</option>
@@ -57,14 +68,33 @@
       </div>
       
       <ng-container *ngFor="let p of crit.pesos; let i = index">
-        <div class="peso-aval-box" [ngClass]="{'readonly-box': !crit.editando}">
-          <span class="readonly-text" *ngIf="!crit.editando">{{ p.peso }}</span>
-          <input type="text" class="mini-input" *ngIf="crit.editando" [(ngModel)]="p.peso" [disabled]="crit.tipo !== 'mais'">
+        <div class="peso-aval-box" [ngClass]="{'readonly-box': !crit.editando && !p._editPeso && !p._editAval}">
+          <span class="readonly-text"
+                *ngIf="!crit.editando && !p._editPeso"
+                (dblclick)="ativarEdicaoPesoAval(crit, p, 'peso', $event)"
+                [title]="crit.tipo === 'mais' ? 'Duplo clique para editar peso' : 'Peso fixo'"
+                [style.cursor]="crit.tipo === 'mais' ? 'pointer' : 'default'">{{ p.peso }}</span>
+          <input type="text"
+                 class="mini-input"
+                 *ngIf="crit.editando || p._editPeso"
+                 [(ngModel)]="p.peso"
+                 [disabled]="crit.tipo !== 'mais'"
+                 (keyup.enter)="!crit.editando && salvarPesoAvalIndividual(crit, p, 'peso')"
+                 (blur)="!crit.editando && salvarPesoAvalIndividual(crit, p, 'peso')">
           
           <div class="divider"></div>
           
-          <span class="readonly-text" *ngIf="!crit.editando">{{ p.aval }}</span>
-          <input type="text" class="mini-input" *ngIf="crit.editando" [(ngModel)]="p.aval">
+          <span class="readonly-text"
+                *ngIf="!crit.editando && !p._editAval"
+                (dblclick)="ativarEdicaoPesoAval(crit, p, 'aval', $event)"
+                title="Duplo clique para editar avaliação"
+                style="cursor: pointer;">{{ p.aval || '-' }}</span>
+          <input type="text"
+                 class="mini-input"
+                 *ngIf="crit.editando || p._editAval"
+                 [(ngModel)]="p.aval"
+                 (keyup.enter)="!crit.editando && salvarPesoAvalIndividual(crit, p, 'aval')"
+                 (blur)="!crit.editando && salvarPesoAvalIndividual(crit, p, 'aval')">
 
           <button *ngIf="crit.editando && crit.tipo === 'mais'" class="action-btn" (click)="removerPeso(crit, i)" style="padding: 2px; margin-left: 4px;">
             <lucide-icon name="x" [size]="14" color="#ef4444"></lucide-icon>

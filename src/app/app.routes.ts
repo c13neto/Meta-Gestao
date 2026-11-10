@@ -4,17 +4,16 @@ import { Cadastro } from './pages/cadastro/cadastro';
 import { Criterios } from './pages/criterios/criterios';
 import { Lista } from './pages/lista/lista';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { Guia } from './pages/guia/guia';
 import { AuthGuard } from './core/services/auth-guard';
-import { Footerc } from './core/components/footerc/footerc';
-import { Headerc } from './core/components/headerc/headerc';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'cadastro', component: Cadastro },
-  { path: 'footer', component: Footerc },
-  { path: 'header', component: Headerc, canActivate:[AuthGuard] },
-  { path: 'criterios', component: Criterios, canActivate:[AuthGuard]},
-  { path: 'lista', component: Lista, canActivate:[AuthGuard] },
-  { path: 'dashboard', component: Dashboard, canActivate:[AuthGuard] }
+  { path: 'criterios', component: Criterios, canActivate: [AuthGuard] },
+  { path: 'lista', component: Lista, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
+  { path: 'guia', component: Guia, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: 'login' }
 ];

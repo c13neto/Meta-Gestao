@@ -1,4 +1,20 @@
-.header-nav { display: flex; justify-content: center; align-items: center; padding: 20px 40px; gap: 40px; background-color: transparent; width: 100%; box-sizing: border-box; }
+:host {
+  display: block;
+  width: 100%;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 24px;
+  gap: 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  width: 100%;
+  box-sizing: border-box;
+}
 
 /* User Profile Pill Button */
 .user-profile-pill { display: flex; align-items: center; gap: 12px; border: 1px solid #e1e6ec; border-radius: 40px; padding: 8px 20px 8px 8px; background: white; cursor: pointer; transition: background 0.2s, transform 0.2s; outline: none; font-family: inherit; text-align: left; }

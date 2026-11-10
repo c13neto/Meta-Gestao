@@ -1,0 +1,92 @@
+<div class="guia-container">
+  <header class="guia-hero">
+    <div class="hero-badge">
+      <lucide-icon name="scroll" [size]="18" color="#2563eb"></lucide-icon>
+      <span>Manual Interativo</span>
+    </div>
+    <h1>Guia de Uso — Meta Gestão</h1>
+    <p>Aprenda passo a passo como organizar suas tarefas, configurar critérios com pesos e acompanhar sua produtividade no Dashboard.</p>
+  </header>
+
+  <div class="guia-grid">
+    <!-- Passo 1: Critérios -->
+    <div class="guia-card card-purple">
+      <div class="card-header">
+        <span class="step-badge badge-purple">Passo 1</span>
+        <h3>Criando e Editando Critérios</h3>
+      </div>
+      <p class="card-desc">
+        Os <strong>Critérios</strong> definem como cada tarefa será avaliada e quantos pontos ela vale na coluna <strong>Soma</strong> e no <strong>Dashboard</strong>.
+      </p>
+      <ul class="guia-list">
+        <li><strong>Escalas:</strong> Escolha entre <code>5</code> (pesos 0 a 5), <code>10</code> (pesos 0 a 10) ou <code>Mais</code> (pesos livres personalizados, ex: 10, 25, 50).</li>
+        <li><strong>Edição Rápida (Duplo Clique):</strong> Dê <strong>duplo clique</strong> no nome, no tipo ou em qualquer peso/avaliação para editar e salvar automaticamente.</li>
+        <li><strong>Exclusão Inteligente:</strong> Ao clicar na lixeira de um critério, você pode escolher se deseja <em>remover a coluna de todas as tarefas automaticamente</em> ou apenas tirá-lo do catálogo.</li>
+      </ul>
+      <button class="guia-btn btn-purple" (click)="irPara('/criterios')">
+        Ir para Critérios <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Passo 2: Lista de Tarefas -->
+    <div class="guia-card card-blue">
+      <div class="card-header">
+        <span class="step-badge badge-blue">Passo 2</span>
+        <h3>Gerenciando a Lista de Tarefas</h3>
+      </div>
+      <p class="card-desc">
+        A <strong>Lista de Tarefas</strong> funciona como uma planilha inteligente com cálculo em tempo real.
+      </p>
+      <ul class="guia-list">
+        <li><strong>+ Nova Tarefa:</strong> Cria uma linha no topo em modo de edição com um pop-up rápido (<strong>Salvar Tarefa</strong> ou <strong>Cancelar</strong>).</li>
+        <li><strong>Duplo Clique em Qualquer Coluna:</strong> Clique duas vezes em <em>Categoria</em>, <em>Tarefa</em>, <em>Datas</em>, <em>Status</em> ou nas colunas de <em>Critérios</em> para alterar o valor individualmente.</li>
+        <li><strong>Coluna Soma:</strong> Calcula automaticamente a soma dos pesos dos critérios preenchidos naquela tarefa.</li>
+        <li><strong>Adicionar / Remover Colunas:</strong> Use o botão <code>Adicionar +</code> no cabeçalho da tabela para incluir critérios ativos, ou o <code>X</code> para removê-los.</li>
+      </ul>
+      <button class="guia-btn btn-blue" (click)="irPara('/lista')">
+        Ir para Lista de Tarefas <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Passo 3: Categorias e Status Coloridos -->
+    <div class="guia-card card-amber">
+      <div class="card-header">
+        <span class="step-badge badge-amber">Passo 3</span>
+        <h3>Categorias e Cores de Status</h3>
+      </div>
+      <p class="card-desc">
+        Organize suas tarefas visualmente por <strong>Categoria</strong> e identifique rapidamente o andamento pelas <strong>cores de Status</strong>.
+      </p>
+      <div class="status-examples">
+        <span class="status-pill status-pendente">Pendente</span>
+        <span class="status-pill status-andamento">Em Andamento</span>
+        <span class="status-pill status-revisao">Em Revisão</span>
+        <span class="status-pill status-concluida">Concluída</span>
+        <span class="status-pill status-bloqueada">Bloqueada / Urgente</span>
+      </div>
+      <ul class="guia-list">
+        <li><strong>Criar Categoria:</strong> No filtro do topo da Lista de Tarefas, escolha <code>+ Adicionar Nova...</code>.</li>
+        <li><strong>Excluir Categoria com Opção:</strong> Clique no botão de lixeira ao lado do seletor de categoria para escolher entre <strong>excluir apenas a categoria</strong> (mantendo as tarefas sem categoria) ou <strong>excluir a categoria e todas as suas tarefas juntas</strong>.</li>
+      </ul>
+    </div>
+
+    <!-- Passo 4: Dashboard e Pontuação -->
+    <div class="guia-card card-emerald">
+      <div class="card-header">
+        <span class="step-badge badge-emerald">Passo 4</span>
+        <h3>Dashboard e Calendário (Heatmap)</h3>
+      </div>
+      <p class="card-desc">
+        Acompanhe sua evolução diária e o placar geral de pontos conquistados.
+      </p>
+      <ul class="guia-list">
+        <li><strong>Pontuação Fiel:</strong> Ao marcar o checkbox de conclusão de uma tarefa, os pontos da coluna <strong>Soma</strong> são creditados no Dashboard (tarefas sem critérios valem <code>0</code> pontos).</li>
+        <li><strong>Sincronização Total:</strong> Se você editar uma nota ou apagar um critério, a pontuação é recalculada instantaneamente em todo o sistema.</li>
+        <li><strong>Heatmap de 28 Dias:</strong> Cada quadrado mostra a intensidade de pontos conquistados naquele dia.</li>
+      </ul>
+      <button class="guia-btn btn-emerald" (click)="irPara('/dashboard')">
+        Ver Dashboard <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</div>

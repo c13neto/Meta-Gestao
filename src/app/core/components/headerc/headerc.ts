@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Api } from '../../services/api';
 import { SHARED_IMPORTS } from '../../shared/icons/icons';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 
@@ -13,7 +14,7 @@ import { NgIf } from '@angular/common';
   templateUrl: './headerc.html',
   styleUrl: './headerc.css',
 })
-export class Headerc implements OnInit {
+export class Headerc implements OnInit, OnDestroy {
   userName: string = 'Testador';
   editUserName: string = '';
   userEmail: string = '';
@@ -21,21 +22,24 @@ export class Headerc implements OnInit {
   currentPath: string = '/lista';
   isProfileModalOpen: boolean = false;
   isDropdownOpen: boolean = false;
+  private routerSub: Subscription;
 
   constructor(private router: Router, private api: Api) {
     const currentUrl = this.router.url;
     if (currentUrl.includes('/dashboard')) this.currentPath = '/dashboard';
     else if (currentUrl.includes('/criterios')) this.currentPath = '/criterios';
     else if (currentUrl.includes('/lista')) this.currentPath = '/lista';
+    else if (currentUrl.includes('/guia')) this.currentPath = '/guia';
     else if (currentUrl.includes('/configuracoes')) this.currentPath = '/configuracoes';
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
+    this.routerSub = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event) => {
       const url = event.urlAfterRedirects || event.url;
       if (url.includes('/dashboard')) this.currentPath = '/dashboard';
       else if (url.includes('/criterios')) this.currentPath = '/criterios';
       else if (url.includes('/lista')) this.currentPath = '/lista';
+      else if (url.includes('/guia')) this.currentPath = '/guia';
       else if (url.includes('/configuracoes')) this.currentPath = '/configuracoes';
     });
   }
@@ -61,6 +65,10 @@ export class Headerc implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+  }
+
   toggleProfileModal() {
     if (!this.isProfileModalOpen) {
       this.editUserName = this.userName;
@@ -79,7 +87,10 @@ export class Headerc implements OnInit {
   }
 
   saveProfile() {
-    this.userName = this.editUserName;
+    const trimmedName = this.editUserName.trim();
+    if (!trimmedName) return;
+
+    this.userName = trimmedName;
     localStorage.setItem('usuarioNome', this.userName);
     const userId = localStorage.getItem('usuarioId');
     
@@ -91,8 +102,11 @@ export class Headerc implements OnInit {
   }
 
   logout() {
-    localStorage.clear();
-    window.location.href = '/login';
+    localStorage.removeItem('usuarioId');
+    localStorage.removeItem('usuarioNome');
+    localStorage.removeItem('usuarioEmail');
+    localStorage.removeItem('usuarioAcesso');
+    this.router.navigate(['/login']);
   }
 
   navigateToRoute(route: string, event?: Event) {
@@ -117,6 +131,7 @@ export class Headerc implements OnInit {
     if (path.includes('/dashboard')) return 'Dashboard';
     if (path.includes('/criterios')) return 'Critérios';
     if (path.includes('/lista')) return 'Lista de Tarefas';
+    if (path.includes('/guia')) return 'Guia de Uso';
     if (path.includes('/configuracoes')) return 'Configurações';
     return 'Menu';
   }

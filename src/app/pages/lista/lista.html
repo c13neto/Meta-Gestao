@@ -4,16 +4,24 @@
       <div class="controls-left">
         <div class="categoria-pill">Tarefas</div>
         <ng-container *ngIf="filtroCategoria !== '_NOVA_'">
-          <select class="form-control" [(ngModel)]="filtroCategoria" (change)="onFiltroCategoriaChange()" style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; min-width: 150px; cursor: pointer;">
+          <select class="form-control filter-select" [(ngModel)]="filtroCategoria" (change)="onFiltroCategoriaChange()">
             <option value="">Todas as Categorias</option>
             <option *ngFor="let c of categorias" [value]="c.NOME || c.nome">{{ c.NOME || c.nome }}</option>
             <option value="_NOVA_">+ Adicionar Nova...</option>
           </select>
+          <button *ngIf="categorias.length > 0"
+                  type="button"
+                  class="btn-delete-cat"
+                  (click)="abrirModalExcluirCategoria()"
+                  title="Excluir categoria (com ou sem tarefas)">
+            <lucide-icon [img]="Trash2" class="icon" style="width: 15px; height: 15px; color: #dc2626;"></lucide-icon>
+            <span>Excluir Categoria</span>
+          </button>
         </ng-container>
         
         <div *ngIf="filtroCategoria === '_NOVA_'" class="nova-categoria-row">
-          <input type="text" [(ngModel)]="novaCategoriaNome" class="form-control" placeholder="Nova categoria..." style="background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 14px; width: 150px;" (keyup.enter)="salvarNovaCategoria()" autofocus>
-          <button class="btn-save" (click)="salvarNovaCategoria()" style="padding: 6px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+          <input type="text" [(ngModel)]="novaCategoriaNome" class="form-control filter-input" placeholder="Nova categoria..." (keyup.enter)="salvarNovaCategoria()" autofocus>
+          <button class="btn-save" (click)="salvarNovaCategoria()" style="padding: 7px 14px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
             <lucide-icon [img]="Save" class="icon" style="width: 14px; height: 14px; color: white;"></lucide-icon> Salvar
           </button>
           <button class="icon-btn" (click)="cancelarNovaCategoria()" style="padding: 6px;">
@@ -22,21 +30,20 @@
         </div>
       </div>
       <div class="controls-right">
-        <button class="btn-save" style="display: flex; align-items: center; gap: 8px;" (click)="mostrarModal = !mostrarModal" [disabled]="carregando">
-          <lucide-icon [img]="Plus" class="icon-plus" color="white"></lucide-icon> Nova Tarefa
-        </button>
-
-        <div class="inline-add-dropdown" *ngIf="mostrarModal" style="right: 0; left: auto; top: 120%;">
-          <input type="text" 
-                 [(ngModel)]="novaTarefa.nomeAtividade" 
-                 placeholder="Digite a tarefa..." 
-                 class="form-control inline-input"
-                 (keyup.enter)="salvarTarefa()"
-                 autofocus>
-          <button class="icon-btn btn-send" (click)="salvarTarefa()" [disabled]="carregando">
-            <lucide-icon [img]="Check"></lucide-icon>
+        <!-- Pop-up pequeno em cima para salvar ou cancelar a existência da nova tarefa -->
+        <div class="novo-rascunho-popup" *ngIf="tarefaEmCriacao">
+          <span class="popup-label">Nova tarefa em edição:</span>
+          <button type="button" class="btn-popup-confirm" (click)="salvarEdicao(tarefaEmCriacao)" [disabled]="tarefaEmCriacao._loading">
+            <lucide-icon [img]="Check" class="icon" style="width: 14px; height: 14px; color: white;"></lucide-icon> Salvar Tarefa
+          </button>
+          <button type="button" class="btn-popup-discard" (click)="cancelarEdicao(tarefaEmCriacao)" [disabled]="tarefaEmCriacao._loading">
+            <lucide-icon [img]="X" class="icon" style="width: 14px; height: 14px; color: #dc2626;"></lucide-icon> Cancelar
           </button>
         </div>
+
+        <button class="btn-save" style="display: flex; align-items: center; gap: 8px;" (click)="iniciarNovaTarefa()" [disabled]="carregando || !!tarefaEmCriacao">
+          <lucide-icon [img]="Plus" class="icon-plus" color="white"></lucide-icon> Nova Tarefa
+        </button>
       </div>
     </div>
   </div>
@@ -45,56 +52,65 @@
     <div class="tarefas-grid" [ngStyle]="{'grid-template-columns': getGridColumns()}">
       <!-- Headers -->
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('CONCLUIDA')">
+        <div class="header-sort" (click)="ordenar('CONCLUIDA')">
           <lucide-icon [img]="CheckSquare" class="icon"></lucide-icon>
           <span class="header-text">Status</span>
           <span *ngIf="colunaOrdenacao === 'CONCLUIDA'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('CATEGORIA')">
+        <div class="header-sort" (click)="ordenar('CATEGORIA')">
           <lucide-icon [img]="ListIcon" class="icon"></lucide-icon>
           <span class="header-text">Categoria</span>
           <span *ngIf="colunaOrdenacao === 'CATEGORIA'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('ATIVIDADE')">
+        <div class="header-sort" (click)="ordenar('ATIVIDADE')">
           <lucide-icon [img]="Pencil" class="icon"></lucide-icon>
           <span class="header-text">Tarefa</span>
           <span *ngIf="colunaOrdenacao === 'ATIVIDADE'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('DATA_COMECO')">
+        <div class="header-sort" (click)="ordenar('DATA_COMECO')">
           <lucide-icon [img]="Clock" class="icon"></lucide-icon>
           <span class="header-text">Data Inicial</span>
           <span *ngIf="colunaOrdenacao === 'DATA_COMECO'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('DATA_FIM')">
+        <div class="header-sort" (click)="ordenar('DATA_FIM')">
           <lucide-icon [img]="Clock" class="icon"></lucide-icon>
           <span class="header-text">Data Final</span>
           <span *ngIf="colunaOrdenacao === 'DATA_FIM'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <div class="col-header">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar('STATUS')">
+        <div class="header-sort" (click)="ordenar('STATUS')">
           <lucide-icon [img]="ShieldAlert" class="icon"></lucide-icon>
           <span class="header-text">Status (Cat.)</span>
           <span *ngIf="colunaOrdenacao === 'STATUS'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
       </div>
       <!-- Critérios Headers -->
-      <div class="col-header" *ngFor="let crit of criteriosAtivos" style="position: relative; justify-content: space-between; padding-right: 4px;">
-        <div style="display: flex; gap: 4px; align-items: center; cursor: pointer;" (click)="ordenar(crit.nome)">
-          <span class="header-text">{{ crit.nome }}</span>
+      <div class="col-header crit-header" *ngFor="let crit of criteriosAtivos">
+        <div class="header-sort crit-sort" (click)="ordenar(crit.nome)" [title]="crit.nome">
+          <span class="header-text crit-title">{{ crit.nome }}</span>
           <span *ngIf="colunaOrdenacao === crit.nome">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
         </div>
-        <button class="icon-btn" (click)="removerColunaCriterio(crit.id)" title="Remover coluna" style="padding: 4px;">
+        <button class="icon-btn crit-remove-btn" (click)="removerColunaCriterio(crit.id)" title="Remover coluna">
           <lucide-icon [img]="X" class="icon" style="width: 14px; height: 14px; color: #ef4444;"></lucide-icon>
         </button>
+      </div>
+
+      <!-- Soma Header -->
+      <div class="col-header soma-header">
+        <div class="header-sort" (click)="ordenar('SOMA')" title="Soma ponderada dos critérios avaliados">
+          <lucide-icon [img]="Calculator" class="icon"></lucide-icon>
+          <span class="header-text">Soma</span>
+          <span *ngIf="colunaOrdenacao === 'SOMA'">{{ ordemOrdenacao === 1 ? '↓' : '↑' }}</span>
+        </div>
       </div>
 
       <div class="col-header no-border" style="justify-content: center; align-items: center;">
@@ -105,44 +121,88 @@
 
       <!-- Iteration over Tarefas -->
       <ng-container *ngFor="let t of tarefasFiltradas">
-        <div class="col-cell checkbox-cell">
+        <div class="col-cell checkbox-cell" [class.editing-row-cell]="t._isEditing">
           <button class="concluir-btn" 
                   [class.concluido]="t.CONCLUIDA" 
-                  [disabled]="t._loading"
+                  [disabled]="t._loading || t._isNew"
                   (click)="concluirTarefa(t)">
             <lucide-icon *ngIf="t.CONCLUIDA" [img]="Check" class="icon-check"></lucide-icon>
           </button>
         </div>
-        <div class="col-cell text-cell" style="padding: 4px;">
-          <select [(ngModel)]="t.CATEGORIA" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500; appearance: auto; cursor: pointer;">
+        <div class="col-cell text-cell" [class.editing-row-cell]="t._isEditing || t._editField === 'CATEGORIA'" (dblclick)="ativarEdicaoCampo(t, 'CATEGORIA', $event)" title="Duplo clique para editar" style="padding: 4px 6px;">
+          <select [(ngModel)]="t.CATEGORIA"
+                  (change)="salvarCampoIndividual(t, 'CATEGORIA')"
+                  (blur)="salvarCampoIndividual(t, 'CATEGORIA')"
+                  (keydown.escape)="cancelarEdicaoCampo(t, 'CATEGORIA')"
+                  class="form-control cell-control"
+                  [disabled]="(!t._isEditing && t._editField !== 'CATEGORIA') || t._loading">
             <option value="">Selecione...</option>
             <option *ngFor="let c of categorias" [value]="c.NOME || c.nome">{{ c.NOME || c.nome }}</option>
           </select>
         </div>
-        <div class="col-cell text-cell" style="padding: 4px;">
-          <input type="text" [(ngModel)]="t.ATIVIDADE" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500;">
+        <div class="col-cell text-cell" [class.editing-row-cell]="t._isEditing || t._editField === 'ATIVIDADE'" (dblclick)="ativarEdicaoCampo(t, 'ATIVIDADE', $event)" title="Duplo clique para editar" style="padding: 4px 6px;">
+          <input type="text"
+                 [(ngModel)]="t.ATIVIDADE"
+                 [title]="t.ATIVIDADE || 'Duplo clique para editar'"
+                 placeholder="Digite o nome da tarefa..."
+                 (keyup.enter)="t._isEditing ? salvarEdicao(t) : salvarCampoIndividual(t, 'ATIVIDADE')"
+                 (blur)="salvarCampoIndividual(t, 'ATIVIDADE')"
+                 (keydown.escape)="cancelarEdicaoCampo(t, 'ATIVIDADE')"
+                 class="form-control cell-control"
+                 [disabled]="(!t._isEditing && t._editField !== 'ATIVIDADE') || t._loading">
         </div>
-        <div class="col-cell text-cell" style="padding: 4px;">
-          <input type="date" [(ngModel)]="t.DATA_COMECO" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-family: inherit;">
+        <div class="col-cell text-cell" [class.editing-row-cell]="t._isEditing || t._editField === 'DATA_COMECO'" (dblclick)="ativarEdicaoCampo(t, 'DATA_COMECO', $event)" title="Duplo clique para editar" style="padding: 4px 4px;">
+          <input type="date"
+                 [(ngModel)]="t.DATA_COMECO"
+                 (change)="salvarCampoIndividual(t, 'DATA_COMECO')"
+                 (blur)="salvarCampoIndividual(t, 'DATA_COMECO')"
+                 (keydown.escape)="cancelarEdicaoCampo(t, 'DATA_COMECO')"
+                 class="form-control cell-control date-control"
+                 [disabled]="(!t._isEditing && t._editField !== 'DATA_COMECO') || t._loading">
         </div>
-        <div class="col-cell text-cell" style="padding: 4px;">
-          <input type="date" [(ngModel)]="t.DATA_FIM" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-family: inherit;">
+        <div class="col-cell text-cell" [class.editing-row-cell]="t._isEditing || t._editField === 'DATA_FIM'" (dblclick)="ativarEdicaoCampo(t, 'DATA_FIM', $event)" title="Duplo clique para editar" style="padding: 4px 4px;">
+          <input type="date"
+                 [(ngModel)]="t.DATA_FIM"
+                 (change)="salvarCampoIndividual(t, 'DATA_FIM')"
+                 (blur)="salvarCampoIndividual(t, 'DATA_FIM')"
+                 (keydown.escape)="cancelarEdicaoCampo(t, 'DATA_FIM')"
+                 class="form-control cell-control date-control"
+                 [disabled]="(!t._isEditing && t._editField !== 'DATA_FIM') || t._loading">
         </div>
-        <div class="col-cell text-cell" style="padding: 4px;">
-          <select [(ngModel)]="t.STATUS" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; font-weight: 500; appearance: auto; cursor: pointer;">
+        <div class="col-cell text-cell status-col-cell" [class.editing-row-cell]="t._isEditing || t._editField === 'STATUS'" (dblclick)="ativarEdicaoCampo(t, 'STATUS', $event)" title="Duplo clique para editar" style="padding: 4px 6px;">
+          <select [(ngModel)]="t.STATUS"
+                  (change)="salvarCampoIndividual(t, 'STATUS')"
+                  (blur)="salvarCampoIndividual(t, 'STATUS')"
+                  (keydown.escape)="cancelarEdicaoCampo(t, 'STATUS')"
+                  class="form-control cell-control status-badge-select"
+                  [ngClass]="getStatusColorClass(t.STATUS)"
+                  [disabled]="(!t._isEditing && t._editField !== 'STATUS') || t._loading">
             <option value="">Selecione...</option>
             <option *ngFor="let s of statusList" [value]="s.NOME || s.nome">{{ s.NOME || s.nome }}</option>
           </select>
         </div>
 
         <!-- Critérios Columns -->
-        <div class="col-cell text-cell" style="padding: 4px;" *ngFor="let crit of criteriosAtivos">
-          <select [(ngModel)]="t[crit.nome]" class="form-control" [disabled]="!t._isEditing || t._loading" style="width: 100%; border: none; background: transparent; cursor: pointer;">
+        <div class="col-cell text-cell" [class.editing-row-cell]="t._isEditing || t._editField === crit.nome" (dblclick)="ativarEdicaoCampo(t, crit.nome, $event)" title="Duplo clique para editar" style="padding: 4px 6px;" *ngFor="let crit of criteriosAtivos">
+          <select [(ngModel)]="t[crit.nome]"
+                  (change)="salvarCampoIndividual(t, crit.nome)"
+                  (blur)="salvarCampoIndividual(t, crit.nome)"
+                  (keydown.escape)="cancelarEdicaoCampo(t, crit.nome)"
+                  class="form-control cell-control"
+                  [disabled]="(!t._isEditing && t._editField !== crit.nome) || t._loading">
             <option value="">-</option>
-            <option *ngFor="let p of crit.pesos" [value]="p.aval || p.peso">{{ p.aval || p.peso }}</option>
+            <option *ngFor="let p of crit.pesos" [value]="p.aval !== '' && p.aval !== undefined ? p.aval : p.peso">{{ p.aval !== '' && p.aval !== undefined ? p.aval + ' (' + p.peso + ')' : p.peso }}</option>
           </select>
         </div>
-        <div class="col-cell no-border action-cell" style="gap: 8px;">
+
+        <!-- Soma Column -->
+        <div class="col-cell soma-cell" [class.editing-row-cell]="t._isEditing">
+          <span class="soma-badge" [class.soma-positiva]="calcularSomaTarefa(t) > 0">
+            {{ calcularSomaTarefa(t) }}
+          </span>
+        </div>
+
+        <div class="col-cell no-border action-cell" [class.editing-row-cell]="t._isEditing" style="gap: 8px;">
           <!-- View Mode -->
           <ng-container *ngIf="!t._isEditing">
             <button class="icon-btn" (click)="editarTarefa(t)" [disabled]="t._loading" title="Editar">
@@ -207,6 +267,50 @@
       <button class="btn-save" (click)="adicionarColunaCriterio()">
         Adicionar Coluna
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Excluir Categoria -->
+<div class="modal-overlay" *ngIf="mostrarModalExcluirCategoria" (click)="fecharModalExcluirCategoria()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Excluir Categoria</h2>
+      <button class="close-btn" (click)="fecharModalExcluirCategoria()">
+        <lucide-icon [img]="X"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Escolha a categoria que deseja excluir</label>
+        <select [(ngModel)]="categoriaParaExcluir" class="form-control">
+          <option *ngFor="let c of categorias" [value]="c.NOME || c.nome">{{ c.NOME || c.nome }}</option>
+        </select>
+      </div>
+
+      <div class="cat-delete-info" *ngIf="categoriaParaExcluir">
+        <p>
+          Existem <strong>{{ qtdTarefasNaCategoriaParaExcluir }}</strong> tarefa(s) vinculadas à categoria
+          <strong>"{{ categoriaParaExcluir }}"</strong>. Como deseja prosseguir?
+        </p>
+      </div>
+
+      <div class="cat-delete-options" *ngIf="categoriaParaExcluir">
+        <button type="button" class="btn-option-keep" (click)="confirmarExclusaoCategoria(false)">
+          <strong>Excluir apenas a categoria</strong>
+          <span>Mantém as {{ qtdTarefasNaCategoriaParaExcluir }} tarefa(s) na lista (ficarão sem categoria)</span>
+        </button>
+
+        <button type="button" class="btn-option-purge" (click)="confirmarExclusaoCategoria(true)">
+          <strong>Excluir categoria + todas as tarefas dela</strong>
+          <span>Remove a categoria e apaga todas as {{ qtdTarefasNaCategoriaParaExcluir }} tarefa(s) vinculadas ao mesmo tempo</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModalExcluirCategoria()">Cancelar</button>
     </div>
   </div>
 </div>

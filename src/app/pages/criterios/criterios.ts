@@ -10,6 +10,10 @@ export interface PesoAval {
   id?: string;
   peso: string | number;
   aval: string | number;
+  _editPeso?: boolean;
+  _editAval?: boolean;
+  _origPeso?: string | number;
+  _origAval?: string | number;
 }
 
 export interface Criterio {
@@ -19,6 +23,8 @@ export interface Criterio {
   pesos: PesoAval[];
   editando?: boolean;
   pesosRemovidos?: string[];
+  _editField?: 'nome' | 'tipo' | null;
+  _origVal?: string;
 }
 
 @Component({
@@ -130,7 +136,12 @@ export class Criterios implements OnInit {
                 aval: o.AVALIACAO || o.avaliacao || o.TEXTO || o.texto || o.AVAL || o.aval || ''
               }));
             } else {
-              pesos = typeof c.PESOS === 'string' ? JSON.parse(c.PESOS) : (c.PESOS || c.pesos || []);
+              try {
+                pesos = typeof c.PESOS === 'string' ? JSON.parse(c.PESOS) : (c.PESOS || c.pesos || []);
+                if (!Array.isArray(pesos)) pesos = [];
+              } catch {
+                pesos = [];
+              }
             }
 
             return {
@@ -149,12 +160,22 @@ export class Criterios implements OnInit {
   }
 
   salvarCriterio() {
-    if (!this.novoCriterio.nome) {
+    const nomeLimpo = this.novoCriterio.nome.trim();
+    if (!nomeLimpo) {
       this.mostrarPopup('Preencha o nome do critério!', false);
       return;
     }
 
+    const pesoInvalido = this.novoCriterio.pesos.some(
+      p => String(p.peso).trim() === '' || isNaN(Number(p.peso))
+    );
+    if (pesoInvalido) {
+      this.mostrarPopup('Todos os pesos devem ser números válidos!', false);
+      return;
+    }
+
     this.carregando = true;
+    this.novoCriterio.nome = nomeLimpo;
 
     this.api.criar('criterio', {
       NOME: this.novoCriterio.nome,
@@ -206,6 +227,21 @@ export class Criterios implements OnInit {
       return;
     }
 
+    const nomeLimpo = crit.nome.trim();
+    if (!nomeLimpo) {
+      this.mostrarPopup('O nome do critério não pode ficar vazio!', false);
+      return;
+    }
+
+    const pesoInvalido = crit.pesos.some(
+      p => String(p.peso).trim() === '' || isNaN(Number(p.peso))
+    );
+    if (pesoInvalido) {
+      this.mostrarPopup('Todos os pesos devem ser números válidos!', false);
+      return;
+    }
+
+    crit.nome = nomeLimpo;
     this.carregando = true;
     
     const obsList: any[] = [];
@@ -242,6 +278,99 @@ export class Criterios implements OnInit {
         this.carregando = false;
         this.mostrarPopup('Erro ao atualizar.', false);
       }
+    });
+  }
+
+  ativarEdicaoCritCampo(crit: Criterio, campo: 'nome' | 'tipo', event?: Event) {
+    if (crit.editando || this.carregando) return;
+    crit._editField = campo;
+    crit._origVal = crit[campo];
+    if (event) {
+      const el = event.currentTarget as HTMLElement;
+      setTimeout(() => {
+        const input = el?.querySelector('input, select') as HTMLElement;
+        input?.focus();
+      }, 20);
+    }
+  }
+
+  salvarCritCampoIndividual(crit: Criterio, campo: 'nome' | 'tipo') {
+    if (crit.editando || crit._editField !== campo) return;
+    const orig = crit._origVal || '';
+    crit._editField = null;
+
+    if (campo === 'nome') {
+      const limpo = crit.nome.trim();
+      if (!limpo) {
+        crit.nome = orig;
+        this.mostrarPopup('O nome do critério não pode ficar vazio!', false);
+        return;
+      }
+      if (limpo === orig) return;
+      crit.nome = limpo;
+      this.api.atualizar('criterio', crit.id!, {
+        NOME: crit.nome,
+        TIPO: crit.tipo,
+        PESOS: JSON.stringify(crit.pesos)
+      }).subscribe(() => {
+        this.mostrarPopup('Nome do critério atualizado!', true);
+      });
+    } else if (campo === 'tipo') {
+      if (crit.tipo === orig) return;
+      this.onEditTipoChange(crit);
+      crit.editando = true;
+      this.atualizarCriterio(crit);
+    }
+  }
+
+  ativarEdicaoPesoAval(crit: Criterio, p: PesoAval, subcampo: 'peso' | 'aval', event?: Event) {
+    if (crit.editando || this.carregando) return;
+    if (subcampo === 'peso' && crit.tipo !== 'mais') return;
+    if (subcampo === 'peso') {
+      p._editPeso = true;
+      p._origPeso = p.peso;
+    } else {
+      p._editAval = true;
+      p._origAval = p.aval;
+    }
+    if (event) {
+      const el = event.currentTarget as HTMLElement;
+      setTimeout(() => {
+        const input = el?.querySelector('input') as HTMLElement;
+        input?.focus();
+      }, 20);
+    }
+  }
+
+  salvarPesoAvalIndividual(crit: Criterio, p: PesoAval, subcampo: 'peso' | 'aval') {
+    if (crit.editando) return;
+    if (subcampo === 'peso') {
+      if (!p._editPeso) return;
+      p._editPeso = false;
+      if (String(p.peso).trim() === '' || isNaN(Number(p.peso))) {
+        p.peso = p._origPeso ?? 0;
+        this.mostrarPopup('O peso deve ser um número válido!', false);
+        return;
+      }
+      if (p.peso === p._origPeso) return;
+    } else {
+      if (!p._editAval) return;
+      p._editAval = false;
+      if (p.aval === p._origAval) return;
+    }
+
+    const obsList: any[] = [
+      this.api.atualizar('criterio', crit.id!, {
+        NOME: crit.nome,
+        TIPO: crit.tipo,
+        PESOS: JSON.stringify(crit.pesos)
+      })
+    ];
+    if (p.id) {
+      obsList.push(this.api.atualizar('criterioOpcoes', p.id, { PESO: p.peso, AVALIACAO: p.aval }));
+    }
+    forkJoin(obsList).subscribe(() => {
+      this.mostrarPopup('Opção atualizada!', true);
     });
   }
 

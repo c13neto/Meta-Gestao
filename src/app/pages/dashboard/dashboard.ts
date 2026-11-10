@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgFor, NgIf, NgClass, NgStyle } from '@angular/common';
+import { NgFor, NgIf, NgStyle } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Api } from '../../core/services/api';
 import { forkJoin, of } from 'rxjs';
@@ -37,6 +37,13 @@ export class Dashboard implements OnInit {
     return this.pontuacaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  private formatarDataLocal(date: Date): string {
+    const ano = date.getFullYear();
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
+
   ngOnInit() {
     this.carregarDados();
   }
@@ -44,42 +51,99 @@ export class Dashboard implements OnInit {
   carregarDados() {
     this.carregando = true;
 
-    forkJoin({
-      conclusoes: this.api.listar('conclusao').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
-      tarefas: this.api.listar('tarefa').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
-      categorias: this.api.listar('categoria').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
-      status: this.api.listar('status').pipe(catchError(() => of({ sucesso: true, devMsg: [] })))
-    }).subscribe({
-      next: (res: any) => {
-        this.carregando = false;
-        this.processarDados(
-          res.conclusoes.devMsg || [],
-          res.tarefas.devMsg || [],
-          res.categorias.devMsg || [],
-          res.status.devMsg || []
-        );
-      },
+      forkJoin({
+        conclusoes: this.api.listar('conclusao').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
+        tarefas: this.api.listar('tarefa').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
+        categorias: this.api.listar('categoria').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
+        status: this.api.listar('status').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
+        criterios: this.api.listar('criterio').pipe(catchError(() => of({ sucesso: true, devMsg: [] }))),
+        opcoes: this.api.listar('criterioOpcoes').pipe(catchError(() => of({ sucesso: true, devMsg: [] })))
+      }).subscribe({
+        next: (res: any) => {
+          this.carregando = false;
+          this.processarDados(
+            res.conclusoes.devMsg || [],
+            res.tarefas.devMsg || [],
+            res.categorias.devMsg || [],
+            res.status.devMsg || [],
+            res.criterios.devMsg || [],
+            res.opcoes.devMsg || []
+          );
+        },
       error: () => {
         this.carregando = false;
       }
     });
   }
 
-  processarDados(conclusoes: any[], tarefas: any[], categorias: any[], statusList: any[]) {
+  private calcularPontosDaTarefa(t: any, criterios: any[], opcoes: any[]): number {
+    let soma = 0;
+    const criteriosAtivos = (criterios || []).filter(c => c.ATIVO !== false && c.ativo !== false);
+    const opcoesAtivas = (opcoes || []).filter(o => o.ATIVO !== false && o.ativo !== false);
+
+    let nomesAtivosNaLista: Set<string> | null = null;
+    try {
+      const salvosLista = localStorage.getItem('criteriosAtivos_lista');
+      if (salvosLista) {
+        const parsed = JSON.parse(salvosLista);
+        if (Array.isArray(parsed)) {
+          nomesAtivosNaLista = new Set(parsed.map((c: any) => String(c.nome || c.NOME || '')));
+        }
+      }
+    } catch {}
+
+    criteriosAtivos.forEach(crit => {
+      const nomeCrit = crit.NOME || crit.nome || crit.TEXTO;
+      if (nomesAtivosNaLista && !nomesAtivosNaLista.has(String(nomeCrit))) {
+        return;
+      }
+      const valorSelecionado = t[nomeCrit];
+      if (valorSelecionado !== undefined && valorSelecionado !== null && String(valorSelecionado).trim() !== '') {
+        const critId = crit.UUID || crit.id || crit.ID;
+        const valNorm = String(valorSelecionado).trim().toLowerCase();
+        const opcao = opcoesAtivas.find(o =>
+          (o['UUID CRITERIO'] === critId || o.criterio_id === critId || o.ID_CRITERIO === critId || o['ID CRITERIO'] === critId) &&
+          (String(o.AVALIACAO ?? '').trim().toLowerCase() === valNorm ||
+           String(o.avaliacao ?? '').trim().toLowerCase() === valNorm ||
+           String(o.TEXTO ?? '').trim().toLowerCase() === valNorm ||
+           String(o.texto ?? '').trim().toLowerCase() === valNorm ||
+           String(o.PESO ?? '').trim().toLowerCase() === valNorm ||
+           String(o.peso ?? '').trim().toLowerCase() === valNorm)
+        );
+        if (opcao) {
+          const pesoNum = Number(opcao.PESO ?? opcao.peso ?? 0);
+          if (!isNaN(pesoNum)) {
+            soma += pesoNum;
+          }
+        }
+      }
+    });
+    return Number(soma.toFixed(2));
+  }
+
+  processarDados(
+    conclusoes: any[],
+    tarefas: any[],
+    categorias: any[],
+    statusList: any[],
+    criterios: any[] = [],
+    opcoes: any[] = []
+  ) {
     const tarefasAtivas = tarefas.filter(t => t.ATIVO !== false && t.ativo !== false);
     this.totalTarefas = tarefasAtivas.length;
 
     const completedStatusIds = statusList
        .filter(s => {
           const name = (s.NOME || s.nome || '').toLowerCase();
-          return name.includes('concluíd') || name.includes('finalizad') || name.includes('pront') || name.includes('feit');
+          return name.includes('concluíd') || name.includes('concluid') || name.includes('finalizad') || name.includes('pront') || name.includes('feit');
        })
        .map(s => String(s.UUID || s.id));
        
     const tarefasConcluidasList = tarefasAtivas.filter(t => {
       if (t.CONCLUIDA || t.concluida) return true;
       const sId = String(t['UUID STATUS'] || t.status_id || t.STATUS || '');
-      return completedStatusIds.includes(sId) || sId.toLowerCase().includes('concluíd') || sId.toLowerCase().includes('finaliz');
+      const sNorm = sId.toLowerCase();
+      return completedStatusIds.includes(sId) || sNorm.includes('concluíd') || sNorm.includes('concluid') || sNorm.includes('finaliz');
     });
 
     this.tarefasConcluidas = tarefasConcluidasList.length;
@@ -88,26 +152,26 @@ export class Dashboard implements OnInit {
     // 1. Process Conclusoes and Points
     this.pontuacaoTotal = 0;
     const pontosPorDia: { [data: string]: number } = {};
-    const hojeData = new Date().toISOString().split('T')[0];
+    const hojeData = this.formatarDataLocal(new Date());
 
     const conclusoesAtivas = conclusoes.filter(item => item.ATIVO !== false && item.ativo !== false);
 
     tarefasConcluidasList.forEach(t => {
       const tId = String(t.UUID || t.id || t.ID || '');
       // Find the latest active conclusion for this task
-      const conclusao = conclusoesAtivas.find(c => String(c.idTarefa || c.ID_TAREFA) === tId);
+      const conclusao = [...conclusoesAtivas].reverse().find(c => String(c.idTarefa || c.ID_TAREFA) === tId);
       
-      let pontos = 10;
+      const pontosDosCriterios = this.calcularPontosDaTarefa(t, criterios, opcoes);
+      const pontos = pontosDosCriterios;
       let dataStr = hojeData;
 
       if (conclusao) {
-        // Fallback for points parsing. If string, it is handled gracefully by Number(). If it fails, fallback to 0.
-        const parsedPoints = Number(conclusao.PONTOS !== undefined ? conclusao.PONTOS : conclusao.pontos);
-        pontos = !isNaN(parsedPoints) ? parsedPoints : 0;
-        
         const h = conclusao.HORARIO || conclusao.horario;
         if (h) {
-          dataStr = new Date(h).toISOString().split('T')[0];
+          const parsedDate = new Date(h);
+          if (!isNaN(parsedDate.getTime())) {
+            dataStr = this.formatarDataLocal(parsedDate);
+          }
         }
       }
 
@@ -119,9 +183,8 @@ export class Dashboard implements OnInit {
     this.heatmapData = [];
     const hoje = new Date();
     for (let i = 27; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(hoje.getDate() - i);
-      const dataFormatada = d.toISOString().split('T')[0];
+      const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i);
+      const dataFormatada = this.formatarDataLocal(d);
       const pontosDoDia = pontosPorDia[dataFormatada] || 0;
       
       let valorIntensidade = 0;
@@ -143,7 +206,7 @@ export class Dashboard implements OnInit {
     tarefasAtivas.forEach(t => {
       const cId = t['UUID CATEGORIA'] || t.categoria_id || t.CATEGORIA;
       if (cId) {
-        const catObj = categorias.find(c => (c.UUID || c.id) === cId || c.NOME === cId);
+        const catObj = categorias.find(c => (c.UUID || c.id) === cId || (c.NOME || c.nome) === cId);
         const nome = catObj ? (catObj.NOME || catObj.nome) : cId;
         catMap.set(nome, (catMap.get(nome) || 0) + 1);
       }
@@ -157,7 +220,7 @@ export class Dashboard implements OnInit {
     tarefasAtivas.forEach(t => {
       const sId = t['UUID STATUS'] || t.status_id || t.STATUS;
       if (sId) {
-        const statusObj = statusList.find(s => (s.UUID || s.id) === sId || s.NOME === sId);
+        const statusObj = statusList.find(s => (s.UUID || s.id) === sId || (s.NOME || s.nome) === sId);
         const nome = statusObj ? (statusObj.NOME || statusObj.nome) : sId;
         statusMap.set(nome, (statusMap.get(nome) || 0) + 1);
       }

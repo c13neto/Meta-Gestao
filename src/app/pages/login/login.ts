@@ -28,7 +28,8 @@ export class Login {
   constructor(private api: Api, private router: Router) {}
 
   entrar() {
-    if (!this.email || !this.senha) {
+    const emailLimpo = this.email.trim();
+    if (!emailLimpo || !this.senha) {
       this.mostrarErro('Preencha todos os campos!');
       return;
     }
@@ -37,7 +38,7 @@ export class Login {
     this.mensagemErro = '';
 
     try {
-      const query = `action=login&email=${encodeURIComponent(this.email)}&senha=${encodeURIComponent(this.senha)}`;
+      const query = `action=login&email=${encodeURIComponent(emailLimpo)}&senha=${encodeURIComponent(this.senha)}`;
 
       this.api.getCustom<LoginDevMsg>(query).subscribe({
         next: (resposta) => {

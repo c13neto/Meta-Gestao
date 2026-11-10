@@ -29,8 +29,22 @@ export class Cadastro {
   constructor(private api: Api, private router: Router) {}
 
   cadastrar() {
-    if (!this.nome || !this.email || !this.senha || !this.confirmarSenha) {
+    const nomeLimpo = this.nome.trim();
+    const emailLimpo = this.email.trim().toLowerCase();
+
+    if (!nomeLimpo || !emailLimpo || !this.senha || !this.confirmarSenha) {
       this.mostrarErro('Preencha todos os campos!');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailLimpo)) {
+      this.mostrarErro('Digite um endereço de e-mail válido!');
+      return;
+    }
+
+    if (this.senha.length < 3) {
+      this.mostrarErro('A senha deve ter pelo menos 3 caracteres!');
       return;
     }
 
@@ -50,10 +64,10 @@ export class Cadastro {
 
     try {
       const payload = {
-        nome: this.nome,
-        email: this.email,
+        nome: nomeLimpo,
+        email: emailLimpo,
         senha: this.senha,
-        idAcesso: 'usuario'
+        idAcesso: 'Usuário'
       };
 
       this.api.criar('usuario', payload).subscribe({
