@@ -7,22 +7,22 @@
   width: 95%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 8px 20px;
   font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   box-sizing: border-box;
 }
 
 .guia-hero {
   background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
   border: 1px solid #bfdbfe;
-  border-radius: 16px;
-  padding: 18px 24px;
+  border-radius: 14px;
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .hero-badge {
@@ -31,9 +31,9 @@
   gap: 6px;
   background: #dbeafe;
   color: #1d4ed8;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 10px;
   border-radius: 999px;
   width: fit-content;
   text-transform: uppercase;
@@ -42,32 +42,32 @@
 
 .guia-hero h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.22rem;
   font-weight: 800;
   color: #0f172a;
 }
 
 .guia-hero p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   color: #475569;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .guia-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 .guia-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -111,20 +111,20 @@
 
 .card-desc {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   color: #475569;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .guia-list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 0.84rem;
+  gap: 4px;
+  font-size: 0.8rem;
   color: #334155;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .guia-list code {

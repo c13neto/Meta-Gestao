@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgFor, NgIf, NgStyle } from '@angular/common';
+import { NgFor, NgIf, NgStyle, NgClass } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Api } from '../../core/services/api';
 import { forkJoin, of } from 'rxjs';
@@ -14,7 +14,7 @@ export interface ApiResponse {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgFor, NgIf, NgStyle, LucideAngularModule],
+  imports: [NgFor, NgIf, NgStyle, NgClass, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -81,22 +81,40 @@ export class Dashboard implements OnInit {
     const criteriosAtivos = (criterios || []).filter(c => c.ATIVO !== false && c.ativo !== false);
     const opcoesAtivas = (opcoes || []).filter(o => o.ATIVO !== false && o.ativo !== false);
 
-    let nomesAtivosNaLista: Set<string> | null = null;
+    let ativosLista: any[] = [];
     try {
       const salvosLista = localStorage.getItem('criteriosAtivos_lista');
       if (salvosLista) {
         const parsed = JSON.parse(salvosLista);
         if (Array.isArray(parsed)) {
-          nomesAtivosNaLista = new Set(parsed.map((c: any) => String(c.nome || c.NOME || '')));
+          ativosLista = parsed;
         }
       }
     } catch {}
 
+    if (ativosLista.length > 0) {
+      ativosLista.forEach(ca => {
+        const nomeCrit = ca.nome || ca.NOME;
+        const valorSelecionado = t[nomeCrit];
+        if (valorSelecionado !== undefined && valorSelecionado !== null && String(valorSelecionado).trim() !== '') {
+          const valNorm = String(valorSelecionado).trim().toLowerCase();
+          const op = (ca.pesos || []).find((p: any) =>
+            (p.aval !== undefined && p.aval !== '' && String(p.aval).trim().toLowerCase() === valNorm) ||
+            String(p.peso ?? '').trim().toLowerCase() === valNorm
+          );
+          if (op) {
+            const pesoNum = Number(op.peso ?? 0);
+            if (!isNaN(pesoNum)) {
+              soma += pesoNum;
+            }
+          }
+        }
+      });
+      return Number(soma.toFixed(2));
+    }
+
     criteriosAtivos.forEach(crit => {
       const nomeCrit = crit.NOME || crit.nome || crit.TEXTO;
-      if (nomesAtivosNaLista && !nomesAtivosNaLista.has(String(nomeCrit))) {
-        return;
-      }
       const valorSelecionado = t[nomeCrit];
       if (valorSelecionado !== undefined && valorSelecionado !== null && String(valorSelecionado).trim() !== '') {
         const critId = crit.UUID || crit.id || crit.ID;
@@ -239,6 +257,26 @@ export class Dashboard implements OnInit {
       case 4: return '#196127'; 
       default: return '#ebedf0';
     }
+  }
+
+  getStatusBadgeClass(nome: string): string {
+    const s = String(nome || '').trim().toLowerCase();
+    if (s.includes('concluíd') || s.includes('concluid') || s.includes('finaliz') || s.includes('pront') || s.includes('feit')) {
+      return 'dash-status-emerald';
+    }
+    if (s.includes('andamento') || s.includes('progresso') || s.includes('iniciad') || s.includes('fazendo')) {
+      return 'dash-status-blue';
+    }
+    if (s.includes('revis') || s.includes('test') || s.includes('homolog') || s.includes('análise') || s.includes('analise')) {
+      return 'dash-status-purple';
+    }
+    if (s.includes('bloquead') || s.includes('urgent') || s.includes('atrasad') || s.includes('crític') || s.includes('critic')) {
+      return 'dash-status-red';
+    }
+    if (s.includes('pendent') || s.includes('aguard') || s.includes('fila')) {
+      return 'dash-status-amber';
+    }
+    return 'dash-status-teal';
   }
 
   scrollCarousel(direction: number) {

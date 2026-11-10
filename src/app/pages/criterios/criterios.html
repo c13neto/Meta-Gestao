@@ -120,4 +120,34 @@
     </div>
   </div>
 
+  <!-- Modal Excluir Critério -->
+  <div class="crit-modal-overlay" *ngIf="criterioParaExcluir" (click)="fecharModalExcluirCriterio()">
+    <div class="crit-modal-content" (click)="$event.stopPropagation()">
+      <div class="crit-modal-header">
+        <h3>Excluir Critério "{{ criterioParaExcluir.nome }}"</h3>
+        <button class="crit-close-btn" (click)="fecharModalExcluirCriterio()">
+          <lucide-icon name="x" [size]="18"></lucide-icon>
+        </button>
+      </div>
+      <div class="crit-modal-body">
+        <p class="crit-modal-desc">
+          Deseja remover também a coluna <strong>"{{ criterioParaExcluir.nome }}"</strong> de todas as tarefas na Lista de Tarefas automaticamente?
+        </p>
+        <div class="crit-modal-options">
+          <button type="button" class="crit-opt-purge" (click)="confirmarExclusaoCriterio(true)">
+            <strong>Excluir critério e remover coluna de todas as tarefas</strong>
+            <span>Remove o critério, oculta a coluna da tabela e limpa os valores em todas as tarefas automaticamente</span>
+          </button>
+          <button type="button" class="crit-opt-keep" (click)="confirmarExclusaoCriterio(false)">
+            <strong>Excluir apenas da página de Critérios</strong>
+            <span>Remove o critério desta página sem limpar os valores/colunas já salvos nas tarefas</span>
+          </button>
+        </div>
+      </div>
+      <div class="crit-modal-footer">
+        <button type="button" class="crit-btn-cancel" (click)="fecharModalExcluirCriterio()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
 </div>

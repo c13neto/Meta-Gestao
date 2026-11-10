@@ -192,9 +192,9 @@ export class Lista implements OnInit {
           };
         }).filter((c: any) => c.nome !== '');
         
-        // Sync active criteria with loaded ones (and remove deleted ones)
+        // Sync active criteria with loaded ones (preserving columns whose criterion was kept on tasks)
         this.criteriosAtivos = this.criteriosAtivos
-          .map(ca => this.criteriosSalvos.find(c => c.id === ca.id) || this.criteriosSalvos.find(c => c.nome === ca.nome))
+          .map(ca => this.criteriosSalvos.find(c => c.id === ca.id) || this.criteriosSalvos.find(c => c.nome === ca.nome) || ca)
           .filter(Boolean);
         localStorage.setItem('criteriosAtivos_lista', JSON.stringify(this.criteriosAtivos));
       }

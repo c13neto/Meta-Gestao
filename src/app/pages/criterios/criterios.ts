@@ -47,6 +47,7 @@ export class Criterios implements OnInit {
   carregando: boolean = false;
   mensagemPopup: string = '';
   popupSucesso: boolean = false;
+  criterioParaExcluir: Criterio | null = null;
   
   constructor(private api: Api) {}
 
@@ -375,13 +376,23 @@ export class Criterios implements OnInit {
   }
 
   deletarCriterio(crit: Criterio) {
-    if (!confirm('Deseja excluir este critério?')) return;
+    this.criterioParaExcluir = crit;
+  }
+
+  fecharModalExcluirCriterio() {
+    this.criterioParaExcluir = null;
+  }
+
+  confirmarExclusaoCriterio(removerColunaDasTarefas: boolean) {
+    if (!this.criterioParaExcluir || !this.criterioParaExcluir.id) return;
+    const idAlvo = this.criterioParaExcluir.id;
+    this.criterioParaExcluir = null;
     this.carregando = true;
 
-    this.api.deletar('criterio', crit.id!).subscribe({
+    this.api.deletarCriterioComOpcao(idAlvo, removerColunaDasTarefas).subscribe({
       next: (res) => {
         if (res.sucesso) {
-          this.mostrarPopup('Critério excluído!', true);
+          this.mostrarPopup(res.mensagem || 'Critério excluído!', true);
           this.carregarCriterios();
         } else {
           this.carregando = false;

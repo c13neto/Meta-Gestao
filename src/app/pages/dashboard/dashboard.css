@@ -304,6 +304,21 @@
   font-weight: 700;
 }
 
+.dash-status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.dash-status-emerald { background: #d1fae5; color: #047857; border-color: #a7f3d0; }
+.dash-status-blue { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+.dash-status-amber { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+.dash-status-purple { background: #ede9fe; color: #6d28d9; border-color: #ddd6fe; }
+.dash-status-red { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+.dash-status-teal { background: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
+
 @media (max-width: 900px) {
   .carousel-card {
     flex: 0 0 100%;

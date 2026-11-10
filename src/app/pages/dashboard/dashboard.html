@@ -71,7 +71,7 @@
         <h4>Top Status</h4>
         <ul class="categorias-list">
           <li *ngFor="let st of resumoStatus.slice(0, 5)">
-            <span class="cat-name">{{ st.nome }}</span>
+            <span class="dash-status-pill" [ngClass]="getStatusBadgeClass(st.nome)">{{ st.nome }}</span>
             <span class="cat-count">{{ st.count }}</span>
           </li>
         </ul>

@@ -238,6 +238,155 @@
 .delete-btn { border-color: #ef4444; }
 .delete-btn:hover { background: #fee2e2; }
 
+/* Modal Excluir Critério */
+.crit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.crit-modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.crit-modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.crit-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.crit-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crit-modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.crit-modal-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.crit-modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crit-opt-purge,
+.crit-opt-keep {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.crit-opt-purge {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.crit-opt-purge:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.crit-opt-purge strong {
+  font-size: 0.9rem;
+  color: #dc2626;
+}
+
+.crit-opt-purge span {
+  font-size: 0.8rem;
+  color: #7f1d1d;
+}
+
+.crit-opt-keep {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.crit-opt-keep:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.crit-opt-keep strong {
+  font-size: 0.9rem;
+  color: #1d4ed8;
+}
+
+.crit-opt-keep span {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.crit-modal-footer {
+  padding: 12px 22px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  background: #f8fafc;
+}
+
+.crit-btn-cancel {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.crit-btn-cancel:hover {
+  background: #f1f5f9;
+}
+
 @media (max-width: 768px) {
   .criterios-container {
     padding: 16px;
